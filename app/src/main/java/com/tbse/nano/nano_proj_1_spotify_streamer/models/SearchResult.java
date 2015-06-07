@@ -1,7 +1,5 @@
 package com.tbse.nano.nano_proj_1_spotify_streamer.models;
 
-import java.util.ArrayList;
-
 import kaaes.spotify.webapi.android.models.Artist;
 import kaaes.spotify.webapi.android.models.Image;
 
@@ -26,6 +24,18 @@ public class SearchResult {
             return artist.images.get(0);
         }
         return null;
+    }
+
+    public String getGenres() {
+        StringBuilder stringBuilder = new StringBuilder("");
+        if (artist == null || artist.genres == null || artist.genres.size() == 0) return "";
+        stringBuilder.append(artist.genres.get(0));
+        if (artist.genres.size() > 1) {
+            for (String genre : artist.genres) {
+                stringBuilder.append(", " + genre);
+            }
+        }
+        return stringBuilder.toString();
     }
 
     public SearchResult(Artist artist) {

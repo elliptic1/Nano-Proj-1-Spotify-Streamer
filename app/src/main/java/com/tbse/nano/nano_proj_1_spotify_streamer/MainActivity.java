@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.EditText;
@@ -53,6 +54,11 @@ public class MainActivity extends ActionBarActivity {
             @Override
             public void afterTextChanged(Editable s) {
 
+                if (s.toString().equals("")) {
+                    clearSearchResultsList();
+                    return;
+                }
+
                 spotify.searchArtists(s.toString(), new Callback<ArtistsPager>() {
                     @Override
                     public void success(ArtistsPager artistsPager, Response response) {
@@ -62,7 +68,7 @@ public class MainActivity extends ActionBarActivity {
 
                     @Override
                     public void failure(RetrofitError error) {
-
+                        Log.e(TAG, "failure: " + error.getBody());
                     }
                 });
 
@@ -70,6 +76,19 @@ public class MainActivity extends ActionBarActivity {
             }
         });
 
+    }
+
+    private void clearSearchResultsList() {
+
+        ArrayList<SearchResult> searchResults = new ArrayList<>();
+        final SearchResultsAdapter adapter = new SearchResultsAdapter(this, searchResults);
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                ListView listView = (ListView) findViewById(R.id.listView);
+                listView.setAdapter(adapter);
+            }
+        });
     }
 
     private void populateSearchResultsList(List<Artist> sr) {

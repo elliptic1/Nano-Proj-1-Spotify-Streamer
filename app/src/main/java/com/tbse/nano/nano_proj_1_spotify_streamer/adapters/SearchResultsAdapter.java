@@ -29,6 +29,9 @@ public class SearchResultsAdapter extends ArrayAdapter<SearchResult> {
         TextView textView = (TextView) convertView.findViewById(R.id.item_main_text_view);
         textView.setText(searchResult.getArtistName());
 
+        TextView genreTV = (TextView) convertView.findViewById(R.id.item_main_genre);
+        genreTV.setText(searchResult.getGenres());
+
         ImageView imageView = (ImageView) convertView.findViewById(R.id.item_main_image);
         if (searchResult.getNumberOfImages() > 0) {
             Image image = searchResult.getFirstImage();
