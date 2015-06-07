@@ -8,7 +8,7 @@ import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.bumptech.glide.Glide;
+import com.squareup.picasso.Picasso;
 import com.tbse.nano.nano_proj_1_spotify_streamer.R;
 import com.tbse.nano.nano_proj_1_spotify_streamer.models.TrackResult;
 
@@ -30,11 +30,10 @@ public class TrackResultsAdapter extends ArrayAdapter<TrackResult> {
             imageView.setVisibility(View.VISIBLE);
             Image image = trackResult.getImage();
             if (image != null) {
-                Glide.with(getContext())
+                Picasso.with(getContext())
                         .load(image.url)
-                        .fitCenter()
+                        .fit()
                         .centerCrop()
-                        .crossFade()
                         .into(imageView);
             }
 

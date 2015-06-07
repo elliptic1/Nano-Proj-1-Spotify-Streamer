@@ -26,16 +26,11 @@ public class SearchResult {
         return null;
     }
 
-    public String getGenres() {
-        StringBuilder stringBuilder = new StringBuilder("");
+    public String getGenre() {
         if (artist == null || artist.genres == null || artist.genres.size() == 0) return "";
-        stringBuilder.append(artist.genres.get(0));
-        if (artist.genres.size() > 1) {
-            for (String genre : artist.genres) {
-                stringBuilder.append(", " + genre);
-            }
-        }
-        return stringBuilder.toString();
+        String genre = artist.genres.get(0);
+        genre = genre.substring(0,1).toUpperCase() + genre.substring(1, genre.length());
+        return genre;
     }
 
     public SearchResult(Artist artist) {

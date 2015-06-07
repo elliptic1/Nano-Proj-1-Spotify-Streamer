@@ -8,7 +8,7 @@ import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.bumptech.glide.Glide;
+import com.squareup.picasso.Picasso;
 import com.tbse.nano.nano_proj_1_spotify_streamer.R;
 import com.tbse.nano.nano_proj_1_spotify_streamer.models.SearchResult;
 
@@ -29,18 +29,17 @@ public class SearchResultsAdapter extends ArrayAdapter<SearchResult> {
         textView.setText(searchResult.getArtistName());
 
         TextView genreTV = (TextView) convertView.findViewById(R.id.item_main_genre);
-        genreTV.setText(searchResult.getGenres());
+        genreTV.setText(searchResult.getGenre());
 
         ImageView imageView = (ImageView) convertView.findViewById(R.id.item_main_image);
         if (searchResult.getNumberOfImages() > 0) {
             imageView.setVisibility(View.VISIBLE);
             Image image = searchResult.getFirstImage();
             if (image != null) {
-                Glide.with(getContext())
+                Picasso.with(getContext())
                         .load(image.url)
-                        .fitCenter()
+                        .fit()
                         .centerCrop()
-                        .crossFade()
                         .into(imageView);
             }
 
