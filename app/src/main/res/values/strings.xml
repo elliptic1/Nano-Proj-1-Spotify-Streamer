@@ -1,6 +1,7 @@
 <resources>
-    <string name="app_name">Nano-Proj-1-Spotify-Streamer</string>
+    <string name="app_name">Spotify Streamer</string>
 
-    <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
+    <string name="search_by_artist_name">Search by artist name</string>
+    <string name="search_result_item_default_filler_text">Default filler text for search result item</string>
 </resources>

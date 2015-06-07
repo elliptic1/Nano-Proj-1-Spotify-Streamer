@@ -1,17 +1,93 @@
 package com.tbse.nano.nano_proj_1_spotify_streamer;
 
-import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
+import android.support.v7.app.ActionBarActivity;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.EditText;
+import android.widget.ListView;
+
+import com.tbse.nano.nano_proj_1_spotify_streamer.adapters.SearchResultsAdapter;
+import com.tbse.nano.nano_proj_1_spotify_streamer.models.SearchResult;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import kaaes.spotify.webapi.android.SpotifyApi;
+import kaaes.spotify.webapi.android.SpotifyService;
+import kaaes.spotify.webapi.android.models.Artist;
+import kaaes.spotify.webapi.android.models.ArtistsPager;
+import kaaes.spotify.webapi.android.models.Pager;
+import retrofit.Callback;
+import retrofit.RetrofitError;
+import retrofit.client.Response;
 
 
 public class MainActivity extends ActionBarActivity {
+
+    private final static String TAG = "Nano1";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        // https://github.com/kaaes/spotify-web-api-android
+        SpotifyApi api = new SpotifyApi();
+        final SpotifyService spotify = api.getService();
+
+
+        EditText editText = (EditText) findViewById(R.id.search_edittext);
+        editText.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+
+                spotify.searchArtists(s.toString(), new Callback<ArtistsPager>() {
+                    @Override
+                    public void success(ArtistsPager artistsPager, Response response) {
+                        Pager<Artist> pager = artistsPager.artists;
+                        populateSearchResultsList(pager.items);
+                    }
+
+                    @Override
+                    public void failure(RetrofitError error) {
+
+                    }
+                });
+
+
+            }
+        });
+
+    }
+
+    private void populateSearchResultsList(List<Artist> sr) {
+
+        ArrayList<SearchResult> searchResults = new ArrayList<>();
+        for (Artist artist : sr) {
+            if (artist == null) continue;
+            searchResults.add(new SearchResult(artist));
+        }
+        final SearchResultsAdapter adapter = new SearchResultsAdapter(this, searchResults);
+
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                ListView listView = (ListView) findViewById(R.id.listView);
+                listView.setAdapter(adapter);
+            }
+        });
     }
 
     @Override
@@ -35,4 +111,6 @@ public class MainActivity extends ActionBarActivity {
 
         return super.onOptionsItemSelected(item);
     }
+
+
 }
