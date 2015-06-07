@@ -14,6 +14,8 @@ import com.tbse.nano.nano_proj_1_spotify_streamer.adapters.SearchResultsAdapter;
 import com.tbse.nano.nano_proj_1_spotify_streamer.models.SearchResult;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import kaaes.spotify.webapi.android.SpotifyApi;
@@ -29,6 +31,7 @@ import retrofit.client.Response;
 public class MainActivity extends ActionBarActivity {
 
     private final static String TAG = "Nano1";
+    private SearchResultsAdapter adapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,7 +41,6 @@ public class MainActivity extends ActionBarActivity {
         // https://github.com/kaaes/spotify-web-api-android
         SpotifyApi api = new SpotifyApi();
         final SpotifyService spotify = api.getService();
-
 
         EditText editText = (EditText) findViewById(R.id.search_edittext);
         editText.addTextChangedListener(new TextWatcher() {
@@ -63,6 +65,10 @@ public class MainActivity extends ActionBarActivity {
                     @Override
                     public void success(ArtistsPager artistsPager, Response response) {
                         Pager<Artist> pager = artistsPager.artists;
+                        if (pager.items.size() == 0) {
+                            clearSearchResultsList();
+                            return;
+                        }
                         populateSearchResultsList(pager.items);
                     }
 
@@ -79,32 +85,40 @@ public class MainActivity extends ActionBarActivity {
     }
 
     private void clearSearchResultsList() {
-
-        ArrayList<SearchResult> searchResults = new ArrayList<>();
-        final SearchResultsAdapter adapter = new SearchResultsAdapter(this, searchResults);
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                ListView listView = (ListView) findViewById(R.id.listView);
-                listView.setAdapter(adapter);
-            }
-        });
+        adapter.clear();
     }
 
-    private void populateSearchResultsList(List<Artist> sr) {
+    private void populateSearchResultsList(final List<Artist> sr) {
 
-        ArrayList<SearchResult> searchResults = new ArrayList<>();
-        for (Artist artist : sr) {
-            if (artist == null) continue;
-            searchResults.add(new SearchResult(artist));
-        }
-        final SearchResultsAdapter adapter = new SearchResultsAdapter(this, searchResults);
+        final ListView listView = (ListView) findViewById(R.id.listView);
 
+        // sort by popularity
+        Collections.sort(sr, new Comparator<Artist>() {
+            @Override
+            public int compare(Artist lhs, Artist rhs) {
+                return lhs.popularity - rhs.popularity;
+            }
+        });
+
+        // Update the listview on the main thread
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                ListView listView = (ListView) findViewById(R.id.listView);
-                listView.setAdapter(adapter);
+
+                // Make the new adapter
+                if (adapter == null) {
+                    adapter = new SearchResultsAdapter(getApplicationContext(), new ArrayList<SearchResult>());
+                    listView.setAdapter(adapter);
+                }
+
+                adapter.clear();
+
+                // Make an ArrayList from the non-null Artists
+                for (Artist artist : sr) {
+                    if (artist == null) continue;
+                    adapter.add(new SearchResult(artist));
+                }
+
             }
         });
     }

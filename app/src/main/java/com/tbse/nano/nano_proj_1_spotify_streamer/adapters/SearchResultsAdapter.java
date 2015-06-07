@@ -34,6 +34,7 @@ public class SearchResultsAdapter extends ArrayAdapter<SearchResult> {
 
         ImageView imageView = (ImageView) convertView.findViewById(R.id.item_main_image);
         if (searchResult.getNumberOfImages() > 0) {
+            imageView.setVisibility(View.VISIBLE);
             Image image = searchResult.getFirstImage();
             if (image != null) {
                 Glide.with(getContext())
@@ -44,13 +45,14 @@ public class SearchResultsAdapter extends ArrayAdapter<SearchResult> {
                         .into(imageView);
             }
 
+        } else {
+            imageView.setVisibility(View.INVISIBLE);
         }
 
         return convertView;
     }
 
     public SearchResultsAdapter(Context context, ArrayList<SearchResult> objects) {
-
         super(context, 0, objects);
     }
 }
