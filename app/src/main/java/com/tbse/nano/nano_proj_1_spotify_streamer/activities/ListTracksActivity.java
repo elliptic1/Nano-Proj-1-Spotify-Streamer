@@ -6,34 +6,36 @@ import android.util.Log;
 import android.widget.ListView;
 
 import com.tbse.nano.nano_proj_1_spotify_streamer.R;
-import com.tbse.nano.nano_proj_1_spotify_streamer.adapters.AlbumResultsAdapter;
-import com.tbse.nano.nano_proj_1_spotify_streamer.models.AlbumResult;
+import com.tbse.nano.nano_proj_1_spotify_streamer.adapters.TrackResultsAdapter;
+import com.tbse.nano.nano_proj_1_spotify_streamer.models.TrackResult;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import kaaes.spotify.webapi.android.SpotifyApi;
 import kaaes.spotify.webapi.android.SpotifyService;
-import kaaes.spotify.webapi.android.models.AlbumSimple;
-import kaaes.spotify.webapi.android.models.AlbumsPager;
 import kaaes.spotify.webapi.android.models.Pager;
+import kaaes.spotify.webapi.android.models.Track;
+import kaaes.spotify.webapi.android.models.TracksPager;
 import retrofit.Callback;
 import retrofit.RetrofitError;
 import retrofit.client.Response;
 
-public class ListAlbumsActivity extends Activity {
+public class ListTracksActivity extends Activity {
 
     private final static String TAG = MainActivity.TAG;
-    private AlbumResultsAdapter adapter;
+    private TrackResultsAdapter adapter;
     private ListView listView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        setContentView(R.layout.album_list);
+        setContentView(R.layout.track_list);
 
-        listView = (ListView) findViewById(R.id.listOfAlbums);
+        listView = (ListView) findViewById(R.id.listOfTracks);
 
         // https://github.com/kaaes/spotify-web-api-android
         SpotifyApi api = new SpotifyApi();
@@ -41,15 +43,15 @@ public class ListAlbumsActivity extends Activity {
 
         String artist = getIntent().getStringExtra("artist");
 
-        spotify.searchAlbums(artist, new Callback<AlbumsPager>() {
+        spotify.searchTracks("artist:"+artist, new Callback<TracksPager>() {
             @Override
-            public void success(AlbumsPager albumsPager, Response response) {
-                Pager<AlbumSimple> pager = albumsPager.albums;
+            public void success(TracksPager tracksPager, Response response) {
+                Pager<Track> pager = tracksPager.tracks;
                 if (pager.items.size() == 0) {
-                    clearAlbumResultsList();
+                    clearTrackResultsList();
                     return;
                 }
-                populateAlbumResultsList(pager.items);
+                populateTrackResultsList(pager.items);
             }
 
             @Override
@@ -61,7 +63,7 @@ public class ListAlbumsActivity extends Activity {
 
     }
 
-    private void clearAlbumResultsList() {
+    private void clearTrackResultsList() {
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
@@ -71,9 +73,17 @@ public class ListAlbumsActivity extends Activity {
         });
     }
 
-    private void populateAlbumResultsList(final List<AlbumSimple> sr) {
+    private void populateTrackResultsList(final List<Track> trackList) {
 
-        final ListView listView = (ListView) findViewById(R.id.listOfAlbums);
+        final ListView listView = (ListView) findViewById(R.id.listOfTracks);
+
+        // sort by popularity
+        Collections.sort(trackList, new Comparator<Track>() {
+            @Override
+            public int compare(Track lhs, Track rhs) {
+                return rhs.popularity - lhs.popularity;
+            }
+        });
 
         // Update the listview on the main thread
         runOnUiThread(new Runnable() {
@@ -82,16 +92,19 @@ public class ListAlbumsActivity extends Activity {
 
                 // Make the new adapter if needed
                 if (adapter == null) {
-                    adapter = new AlbumResultsAdapter(getApplicationContext(), new ArrayList<AlbumResult>());
+                    adapter = new TrackResultsAdapter(getApplicationContext(), new ArrayList<TrackResult>());
                     listView.setAdapter(adapter);
                 }
 
                 adapter.clear();
 
                 // Add the non-null Albums
-                for (AlbumSimple album : sr) {
-                    if (album == null) continue;
-                    adapter.add(new AlbumResult(album));
+                int c = 0;
+                for (Track track : trackList) {
+                    if (track == null) continue;
+                    c++;
+                    if (c > 10) break;
+                    adapter.add(new TrackResult(track));
                 }
 
             }
