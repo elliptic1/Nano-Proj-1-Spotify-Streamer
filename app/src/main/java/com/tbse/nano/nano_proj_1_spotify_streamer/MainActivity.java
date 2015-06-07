@@ -85,7 +85,12 @@ public class MainActivity extends ActionBarActivity {
     }
 
     private void clearSearchResultsList() {
-        adapter.clear();
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                adapter.clear();
+            }
+        });
     }
 
     private void populateSearchResultsList(final List<Artist> sr) {
