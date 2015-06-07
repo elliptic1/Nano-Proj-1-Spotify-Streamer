@@ -10,31 +10,25 @@ import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.tbse.nano.nano_proj_1_spotify_streamer.R;
-import com.tbse.nano.nano_proj_1_spotify_streamer.models.SearchResult;
+import com.tbse.nano.nano_proj_1_spotify_streamer.models.AlbumResult;
 
 import java.util.ArrayList;
 
 import kaaes.spotify.webapi.android.models.Image;
 
-public class SearchResultsAdapter extends ArrayAdapter<SearchResult> {
+public class AlbumResultsAdapter extends ArrayAdapter<AlbumResult> {
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        SearchResult searchResult = getItem(position);
+        AlbumResult albumResult = getItem(position);
 
         if (convertView == null) {
-            convertView = LayoutInflater.from(getContext()).inflate(R.layout.search_result_item, parent, false);
+            convertView = LayoutInflater.from(getContext()).inflate(R.layout.album_result_item, parent, false);
         }
 
-        TextView textView = (TextView) convertView.findViewById(R.id.item_main_text_view);
-        textView.setText(searchResult.getArtistName());
-
-        TextView genreTV = (TextView) convertView.findViewById(R.id.item_main_genre);
-        genreTV.setText(searchResult.getGenres());
-
-        ImageView imageView = (ImageView) convertView.findViewById(R.id.item_main_image);
-        if (searchResult.getNumberOfImages() > 0) {
+        ImageView imageView = (ImageView) convertView.findViewById(R.id.item_album_image);
+        if (albumResult.getNumberOfImages() > 0) {
             imageView.setVisibility(View.VISIBLE);
-            Image image = searchResult.getFirstImage();
+            Image image = albumResult.getFirstImage();
             if (image != null) {
                 Glide.with(getContext())
                         .load(image.url)
@@ -48,10 +42,13 @@ public class SearchResultsAdapter extends ArrayAdapter<SearchResult> {
             imageView.setVisibility(View.INVISIBLE);
         }
 
+        TextView textView = (TextView) convertView.findViewById(R.id.item_album_text_view);
+        textView.setText(albumResult.getAlbum().name);
+
         return convertView;
     }
 
-    public SearchResultsAdapter(Context context, ArrayList<SearchResult> objects) {
+    public AlbumResultsAdapter(Context context, ArrayList<AlbumResult> objects) {
         super(context, 0, objects);
     }
 }

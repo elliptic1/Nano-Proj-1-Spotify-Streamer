@@ -1,15 +1,19 @@
-package com.tbse.nano.nano_proj_1_spotify_streamer;
+package com.tbse.nano.nano_proj_1_spotify_streamer.activities;
 
+import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
-import android.support.v7.app.ActionBarActivity;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.AdapterView;
 import android.widget.EditText;
 import android.widget.ListView;
 
+import com.tbse.nano.nano_proj_1_spotify_streamer.R;
 import com.tbse.nano.nano_proj_1_spotify_streamer.adapters.SearchResultsAdapter;
 import com.tbse.nano.nano_proj_1_spotify_streamer.models.SearchResult;
 
@@ -28,9 +32,9 @@ import retrofit.RetrofitError;
 import retrofit.client.Response;
 
 
-public class MainActivity extends ActionBarActivity {
+public class MainActivity extends Activity {
 
-    private final static String TAG = "Nano1";
+    public final static String TAG = "Nano1";
     private SearchResultsAdapter adapter;
 
     @Override
@@ -97,6 +101,15 @@ public class MainActivity extends ActionBarActivity {
 
         final ListView listView = (ListView) findViewById(R.id.listView);
 
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                Intent intent = new Intent(getApplicationContext(), ListAlbumsActivity.class);
+                intent.putExtra("artist", ((SearchResult)listView.getItemAtPosition(position)).getArtistName());
+                startActivity(intent);
+            }
+        });
+
         // sort by popularity
         Collections.sort(sr, new Comparator<Artist>() {
             @Override
@@ -110,7 +123,7 @@ public class MainActivity extends ActionBarActivity {
             @Override
             public void run() {
 
-                // Make the new adapter
+                // Make the new adapter if needed
                 if (adapter == null) {
                     adapter = new SearchResultsAdapter(getApplicationContext(), new ArrayList<SearchResult>());
                     listView.setAdapter(adapter);
