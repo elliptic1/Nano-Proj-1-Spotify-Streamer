@@ -101,7 +101,7 @@ public class MainActivity extends ActionBarActivity {
         Collections.sort(sr, new Comparator<Artist>() {
             @Override
             public int compare(Artist lhs, Artist rhs) {
-                return lhs.popularity - rhs.popularity;
+                return rhs.popularity - lhs.popularity;
             }
         });
 
