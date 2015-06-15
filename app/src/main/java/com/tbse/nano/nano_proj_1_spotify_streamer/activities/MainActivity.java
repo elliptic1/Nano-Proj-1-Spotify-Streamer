@@ -2,18 +2,21 @@ package com.tbse.nano.nano_proj_1_spotify_streamer.activities;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.os.Bundle;
+import android.support.annotation.UiThread;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
-import android.view.View;
-import android.widget.AdapterView;
 import android.widget.EditText;
 import android.widget.ListView;
 
 import com.tbse.nano.nano_proj_1_spotify_streamer.R;
 import com.tbse.nano.nano_proj_1_spotify_streamer.adapters.SearchResultsAdapter;
 import com.tbse.nano.nano_proj_1_spotify_streamer.models.SearchResult;
+
+import org.androidannotations.annotations.AfterViews;
+import org.androidannotations.annotations.EActivity;
+import org.androidannotations.annotations.ItemClick;
+import org.androidannotations.annotations.ViewById;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -29,22 +32,20 @@ import retrofit.Callback;
 import retrofit.RetrofitError;
 import retrofit.client.Response;
 
-
+@EActivity(R.layout.activity_main)
 public class MainActivity extends Activity {
 
     public final static String TAG = "Nano1";
     private SearchResultsAdapter adapter;
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+    @ViewById(R.id.search_edittext)
+    EditText editText;
 
-        // https://github.com/kaaes/spotify-web-api-android
-        SpotifyApi api = new SpotifyApi();
-        final SpotifyService spotify = api.getService();
+    @ViewById(R.id.listView)
+    ListView listView;
 
-        EditText editText = (EditText) findViewById(R.id.search_edittext);
+    @AfterViews
+    void setEditTextTextChangedListener() {
         editText.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -63,6 +64,8 @@ public class MainActivity extends Activity {
                     return;
                 }
 
+                SpotifyApi api = new SpotifyApi();
+                final SpotifyService spotify = api.getService();
                 spotify.searchArtists("*"+s.toString()+"*", new Callback<ArtistsPager>() {
                     @Override
                     public void success(ArtistsPager artistsPager, Response response) {
@@ -83,30 +86,22 @@ public class MainActivity extends Activity {
 
             }
         });
-
     }
 
+    @UiThread
     private void clearSearchResultsList() {
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                adapter.clear();
-            }
-        });
+        adapter.clear();
+    }
+
+    @ItemClick(R.id.listView)
+    public void listArtistClicked(SearchResult searchResult) {
+        Log.d(TAG, "artist clicked");
+        Intent intent = new Intent(getApplicationContext(), ListTracksActivity_.class);
+        intent.putExtra("artist", searchResult.getArtistName());
+        startActivity(intent);
     }
 
     private void populateSearchResultsList(final List<Artist> sr) {
-
-        final ListView listView = (ListView) findViewById(R.id.listView);
-
-        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Intent intent = new Intent(getApplicationContext(), ListTracksActivity.class);
-                intent.putExtra("artist", ((SearchResult)listView.getItemAtPosition(position)).getArtistName());
-                startActivity(intent);
-            }
-        });
 
         // sort by popularity
         Collections.sort(sr, new Comparator<Artist>() {

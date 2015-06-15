@@ -1,4 +1,26 @@
 apply plugin: 'com.android.application'
+apply plugin: 'android-apt'
+
+buildscript {
+    repositories {
+        jcenter()
+        mavenCentral()
+    }
+    dependencies {
+        classpath 'com.neenbedankt.gradle.plugins:android-apt:1.4'
+
+        // NOTE: Do not place your application dependencies here; they belong
+        // in the individual module build.gradle files
+    }
+}
+
+apt {
+    arguments {
+        androidManifestFile variant.outputs[0].processResources.manifestFile
+        resourcePackageName 'com.tbse.nano.nano_proj_1_spotify_streamer'
+    }
+}
+
 
 android {
     compileSdkVersion 22
@@ -8,7 +30,7 @@ android {
 
     defaultConfig {
         applicationId "com.tbse.nano.nano_proj_1_spotify_streamer"
-        minSdkVersion 17
+        minSdkVersion 11
         targetSdkVersion 22
         versionCode vc
         versionName "1.0.0 build " + vc
@@ -18,6 +40,10 @@ android {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_7
+        targetCompatibility JavaVersion.VERSION_1_7
     }
 }
 
@@ -30,10 +56,21 @@ repositories {
 
 dependencies {
     compile 'com.android.support:appcompat-v7:22.2.0'
-    compile 'com.squareup.retrofit:retrofit:1.9.0'
-    compile 'com.squareup.okhttp:okhttp:2.2.0'
-    compile(name:'spotify-web-api-android-0.1.0', ext:'aar')
-    compile 'com.squareup.picasso:picasso:2.5.2'
-    compile 'com.github.bumptech.glide:glide:3.6.0'
+    apt 'org.androidannotations:androidannotations:3.0'
+    compile 'org.androidannotations:androidannotations-api:3.0'
     compile 'com.android.support:support-v4:22.2.0'
+    compile 'com.github.bumptech.glide:glide:3.6.0'
+    compile 'com.squareup.retrofit:retrofit:1.9.0'
+    compile 'com.squareup.picasso:picasso:2.5.2'
+    compile 'com.squareup.okhttp:okhttp:2.2.0'
+    compile(name: 'spotify-web-api-android-0.1.0', ext: 'aar')
 }
+
+//android.applicationVariants.all { variant ->
+//
+//    def aptOutputDir = project.file("${project.buildDir}/source/apt/")
+//    def aptOutput = new File(aptOutputDir, variant.dirName)
+//
+//    android.sourceSets[getSourceSetName(variant)].java.srcDirs+= aptOutput.getPath()
+//
+//}

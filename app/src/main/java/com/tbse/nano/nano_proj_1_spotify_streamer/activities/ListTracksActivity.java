@@ -9,6 +9,11 @@ import com.tbse.nano.nano_proj_1_spotify_streamer.R;
 import com.tbse.nano.nano_proj_1_spotify_streamer.adapters.TrackResultsAdapter;
 import com.tbse.nano.nano_proj_1_spotify_streamer.models.TrackResult;
 
+import org.androidannotations.annotations.EActivity;
+import org.androidannotations.annotations.ItemClick;
+import org.androidannotations.annotations.UiThread;
+import org.androidannotations.annotations.ViewById;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -23,11 +28,22 @@ import retrofit.Callback;
 import retrofit.RetrofitError;
 import retrofit.client.Response;
 
+@EActivity
 public class ListTracksActivity extends Activity {
 
     private final static String TAG = MainActivity.TAG;
     private TrackResultsAdapter adapter;
-    private ListView listView;
+
+    @ViewById(R.id.listOfTracks) ListView listView;
+
+    @ItemClick(R.id.listOfTracks)
+    public void itemTrackClicked(TrackResult trackResult) {
+        Log.d(TAG, "trackResult clicked: " + trackResult.toString());
+
+        PlayTrackFragment playTrackFragment = new PlayTrackFragment();
+        playTrackFragment.show(getFragmentManager(), "track");
+
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,15 +51,12 @@ public class ListTracksActivity extends Activity {
 
         setContentView(R.layout.track_list);
 
-        listView = (ListView) findViewById(R.id.listOfTracks);
-
-        // https://github.com/kaaes/spotify-web-api-android
         SpotifyApi api = new SpotifyApi();
         final SpotifyService spotify = api.getService();
 
         String artist = getIntent().getStringExtra("artist");
 
-        spotify.searchTracks("artist:"+artist, new Callback<TracksPager>() {
+        spotify.searchTracks("artist:" + artist, new Callback<TracksPager>() {
             @Override
             public void success(TracksPager tracksPager, Response response) {
                 Pager<Track> pager = tracksPager.tracks;
@@ -63,19 +76,13 @@ public class ListTracksActivity extends Activity {
 
     }
 
-    private void clearTrackResultsList() {
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                if (adapter != null)
-                    adapter.clear();
-            }
-        });
+    @UiThread
+    void clearTrackResultsList() {
+        if (adapter != null)
+            adapter.clear();
     }
 
     private void populateTrackResultsList(final List<Track> trackList) {
-
-        final ListView listView = (ListView) findViewById(R.id.listOfTracks);
 
         // sort by popularity
         Collections.sort(trackList, new Comparator<Track>() {
@@ -85,30 +92,29 @@ public class ListTracksActivity extends Activity {
             }
         });
 
-        // Update the listview on the main thread
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
+        updateListView(trackList);
 
-                // Make the new adapter if needed
-                if (adapter == null) {
-                    adapter = new TrackResultsAdapter(getApplicationContext(), new ArrayList<TrackResult>());
-                    listView.setAdapter(adapter);
-                }
+    }
 
-                adapter.clear();
+    @UiThread
+    void updateListView(final List<Track> trackList) {
+        // Make the new adapter if needed
+        if (adapter == null) {
+            adapter = new TrackResultsAdapter(getApplicationContext(), new ArrayList<TrackResult>());
+            listView.setAdapter(adapter);
+        }
 
-                // Add the non-null Albums
-                int c = 0;
-                for (Track track : trackList) {
-                    if (track == null) continue;
-                    c++;
-                    if (c > 10) break;
-                    adapter.add(new TrackResult(track));
-                }
+        adapter.clear();
 
-            }
-        });
+        // Add the non-null Albums
+        int c = 0;
+        for (Track track : trackList) {
+            if (track == null) continue;
+            c++;
+            if (c > 10) break;
+            adapter.add(new TrackResult(track));
+        }
+
     }
 
 

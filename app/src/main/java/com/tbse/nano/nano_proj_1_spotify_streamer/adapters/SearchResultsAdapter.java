@@ -17,6 +17,7 @@ import java.util.ArrayList;
 import kaaes.spotify.webapi.android.models.Image;
 
 public class SearchResultsAdapter extends ArrayAdapter<SearchResult> {
+
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         SearchResult searchResult = getItem(position);
@@ -26,12 +27,12 @@ public class SearchResultsAdapter extends ArrayAdapter<SearchResult> {
         }
 
         TextView textView = (TextView) convertView.findViewById(R.id.item_main_text_view);
-        textView.setText(searchResult.getArtistName());
-
         TextView genreTV = (TextView) convertView.findViewById(R.id.item_main_genre);
+        ImageView imageView = (ImageView) convertView.findViewById(R.id.item_main_image);
+
+        textView.setText(searchResult.getArtistName());
         genreTV.setText(searchResult.getGenre());
 
-        ImageView imageView = (ImageView) convertView.findViewById(R.id.item_main_image);
         if (searchResult.getNumberOfImages() > 0) {
             imageView.setVisibility(View.VISIBLE);
             Image image = searchResult.getFirstImage();
