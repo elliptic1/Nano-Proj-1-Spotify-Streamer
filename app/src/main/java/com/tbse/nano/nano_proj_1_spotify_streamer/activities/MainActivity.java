@@ -3,8 +3,6 @@ package com.tbse.nano.nano_proj_1_spotify_streamer.activities;
 import android.app.Activity;
 import android.content.Intent;
 import android.support.annotation.UiThread;
-import android.text.Editable;
-import android.text.TextWatcher;
 import android.util.Log;
 import android.widget.EditText;
 import android.widget.ListView;
@@ -13,7 +11,8 @@ import com.tbse.nano.nano_proj_1_spotify_streamer.R;
 import com.tbse.nano.nano_proj_1_spotify_streamer.adapters.SearchResultsAdapter;
 import com.tbse.nano.nano_proj_1_spotify_streamer.models.SearchResult;
 
-import org.androidannotations.annotations.AfterViews;
+import org.androidannotations.annotations.AfterTextChange;
+import org.androidannotations.annotations.Background;
 import org.androidannotations.annotations.EActivity;
 import org.androidannotations.annotations.ItemClick;
 import org.androidannotations.annotations.ViewById;
@@ -44,52 +43,40 @@ public class MainActivity extends Activity {
     @ViewById(R.id.listView)
     ListView listView;
 
-    @AfterViews
-    void setEditTextTextChangedListener() {
-        editText.addTextChangedListener(new TextWatcher() {
+    @AfterTextChange(R.id.search_edittext)
+    void afterSearchTextChanged() {
+        if (editText.toString().equals("")) {
+            clearSearchResultsList();
+            return;
+        }
+
+        SpotifyApi api = new SpotifyApi();
+        final SpotifyService spotify = api.getService();
+        spotify.searchArtists("*" + editText.toString() + "*", new Callback<ArtistsPager>() {
             @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-            }
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-
-            }
-
-            @Override
-            public void afterTextChanged(Editable s) {
-
-                if (s.toString().equals("")) {
+            public void success(ArtistsPager artistsPager, Response response) {
+                Pager<Artist> pager = artistsPager.artists;
+                if (pager.items.size() == 0) {
                     clearSearchResultsList();
                     return;
                 }
+                populateSearchResultsList(pager.items);
+            }
 
-                SpotifyApi api = new SpotifyApi();
-                final SpotifyService spotify = api.getService();
-                spotify.searchArtists("*"+s.toString()+"*", new Callback<ArtistsPager>() {
-                    @Override
-                    public void success(ArtistsPager artistsPager, Response response) {
-                        Pager<Artist> pager = artistsPager.artists;
-                        if (pager.items.size() == 0) {
-                            clearSearchResultsList();
-                            return;
-                        }
-                        populateSearchResultsList(pager.items);
-                    }
-
-                    @Override
-                    public void failure(RetrofitError error) {
-                        Log.e(TAG, "failure: " + error.getBody());
-                    }
-                });
-
-
+            @Override
+            public void failure(RetrofitError error) {
+                Log.e(TAG, "failure: " + error.getBody());
             }
         });
+
     }
 
     @UiThread
     private void clearSearchResultsList() {
+        if (adapter == null) {
+            adapter = new SearchResultsAdapter(getApplicationContext(), new ArrayList<SearchResult>());
+            listView.setAdapter(adapter);
+        }
         adapter.clear();
     }
 
@@ -101,7 +88,8 @@ public class MainActivity extends Activity {
         startActivity(intent);
     }
 
-    private void populateSearchResultsList(final List<Artist> sr) {
+    @Background
+    void populateSearchResultsList(final List<Artist> sr) {
 
         // sort by popularity
         Collections.sort(sr, new Comparator<Artist>() {
@@ -111,29 +99,26 @@ public class MainActivity extends Activity {
             }
         });
 
-        // Update the listview on the main thread
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
+        makeNewAdapter(sr);
 
-                // Make the new adapter if needed
-                if (adapter == null) {
-                    adapter = new SearchResultsAdapter(getApplicationContext(), new ArrayList<SearchResult>());
-                    listView.setAdapter(adapter);
-                }
-
-                adapter.clear();
-
-                // Make an ArrayList from the non-null Artists
-                for (Artist artist : sr) {
-                    if (artist == null) continue;
-                    adapter.add(new SearchResult(artist));
-                }
-
-            }
-        });
     }
 
+    @UiThread
+    void makeNewAdapter(final List<Artist> sr) {
+        // Make the new adapter if needed
+        if (adapter == null) {
+            adapter = new SearchResultsAdapter(getApplicationContext(), new ArrayList<SearchResult>());
+            listView.setAdapter(adapter);
+        }
+
+        adapter.clear();
+
+        // Make an ArrayList from the non-null Artists
+        for (Artist artist : sr) {
+            if (artist == null) continue;
+            adapter.add(new SearchResult(artist));
+        }
+    }
 
 
 }
