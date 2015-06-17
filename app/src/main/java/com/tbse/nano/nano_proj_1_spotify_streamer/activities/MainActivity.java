@@ -83,7 +83,7 @@ public class MainActivity extends Activity {
     @ItemClick(R.id.listView)
     public void listArtistClicked(SearchResult searchResult) {
         Log.d(TAG, "artist clicked");
-        Intent intent = new Intent(getApplicationContext(), ListTracksActivity.class);
+        Intent intent = new Intent(getApplicationContext(), ListTracksActivity_.class);
         intent.putExtra("artist", searchResult.getArtistName());
         startActivity(intent);
     }

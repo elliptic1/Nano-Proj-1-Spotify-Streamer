@@ -9,6 +9,7 @@ import com.tbse.nano.nano_proj_1_spotify_streamer.R;
 import com.tbse.nano.nano_proj_1_spotify_streamer.adapters.TrackResultsAdapter;
 import com.tbse.nano.nano_proj_1_spotify_streamer.models.TrackResult;
 
+import org.androidannotations.annotations.Background;
 import org.androidannotations.annotations.EActivity;
 import org.androidannotations.annotations.ItemClick;
 import org.androidannotations.annotations.UiThread;
@@ -28,7 +29,7 @@ import retrofit.Callback;
 import retrofit.RetrofitError;
 import retrofit.client.Response;
 
-@EActivity
+@EActivity(R.layout.track_list)
 public class ListTracksActivity extends Activity {
 
     private final static String TAG = MainActivity.TAG;
@@ -40,7 +41,10 @@ public class ListTracksActivity extends Activity {
     public void itemTrackClicked(TrackResult trackResult) {
         Log.d(TAG, "trackResult clicked: " + trackResult.toString());
 
-        PlayTrackFragment playTrackFragment = new PlayTrackFragment();
+        PlayTrackFragment playTrackFragment = new PlayTrackFragment_();
+        Bundle b = new Bundle();
+        b.putParcelable("track", trackResult);
+        playTrackFragment.setArguments(b);
         playTrackFragment.show(getFragmentManager(), "track");
 
     }
@@ -48,8 +52,6 @@ public class ListTracksActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        setContentView(R.layout.track_list);
 
         SpotifyApi api = new SpotifyApi();
         final SpotifyService spotify = api.getService();
@@ -82,7 +84,8 @@ public class ListTracksActivity extends Activity {
             adapter.clear();
     }
 
-    private void populateTrackResultsList(final List<Track> trackList) {
+    @Background
+    void populateTrackResultsList(final List<Track> trackList) {
 
         // sort by popularity
         Collections.sort(trackList, new Comparator<Track>() {
@@ -104,7 +107,7 @@ public class ListTracksActivity extends Activity {
             listView.setAdapter(adapter);
         }
 
-        adapter.clear();
+        clearTrackResultsList();
 
         // Add the non-null Albums
         int c = 0;
