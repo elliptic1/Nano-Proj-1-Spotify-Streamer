@@ -2,7 +2,6 @@ package com.tbse.nano.nano_proj_1_spotify_streamer.activities;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.support.annotation.UiThread;
 import android.util.Log;
 import android.widget.EditText;
 import android.widget.ListView;
@@ -15,6 +14,7 @@ import org.androidannotations.annotations.AfterTextChange;
 import org.androidannotations.annotations.Background;
 import org.androidannotations.annotations.EActivity;
 import org.androidannotations.annotations.ItemClick;
+import org.androidannotations.annotations.UiThread;
 import org.androidannotations.annotations.ViewById;
 
 import java.util.ArrayList;
@@ -52,7 +52,7 @@ public class MainActivity extends Activity {
 
         SpotifyApi api = new SpotifyApi();
         final SpotifyService spotify = api.getService();
-        spotify.searchArtists("*" + editText.toString() + "*", new Callback<ArtistsPager>() {
+        spotify.searchArtists("*" + editText.getText().toString() + "*", new Callback<ArtistsPager>() {
             @Override
             public void success(ArtistsPager artistsPager, Response response) {
                 Pager<Artist> pager = artistsPager.artists;
@@ -72,7 +72,7 @@ public class MainActivity extends Activity {
     }
 
     @UiThread
-    private void clearSearchResultsList() {
+    void clearSearchResultsList() {
         if (adapter == null) {
             adapter = new SearchResultsAdapter(getApplicationContext(), new ArrayList<SearchResult>());
             listView.setAdapter(adapter);
@@ -83,7 +83,7 @@ public class MainActivity extends Activity {
     @ItemClick(R.id.listView)
     public void listArtistClicked(SearchResult searchResult) {
         Log.d(TAG, "artist clicked");
-        Intent intent = new Intent(getApplicationContext(), ListTracksActivity_.class);
+        Intent intent = new Intent(getApplicationContext(), ListTracksActivity.class);
         intent.putExtra("artist", searchResult.getArtistName());
         startActivity(intent);
     }

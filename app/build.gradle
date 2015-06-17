@@ -26,7 +26,7 @@ android {
     compileSdkVersion 22
     buildToolsVersion "22.0.1"
 
-    def vc = 2
+    def vc = 3
 
     defaultConfig {
         applicationId "com.tbse.nano.nano_proj_1_spotify_streamer"
