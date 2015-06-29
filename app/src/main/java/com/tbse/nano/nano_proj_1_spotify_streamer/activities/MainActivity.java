@@ -12,6 +12,7 @@ import com.tbse.nano.nano_proj_1_spotify_streamer.models.SearchResult;
 
 import org.androidannotations.annotations.AfterTextChange;
 import org.androidannotations.annotations.Background;
+import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EActivity;
 import org.androidannotations.annotations.ItemClick;
 import org.androidannotations.annotations.UiThread;
@@ -35,7 +36,8 @@ import retrofit.client.Response;
 public class MainActivity extends Activity {
 
     public final static String TAG = "Nano1";
-    private SearchResultsAdapter adapter;
+    @Bean
+    SearchResultsAdapter adapter;
 
     @ViewById(R.id.search_edittext)
     EditText editText;
@@ -46,7 +48,7 @@ public class MainActivity extends Activity {
     @AfterTextChange(R.id.search_edittext)
     void afterSearchTextChanged() {
         if (editText.toString().equals("")) {
-            clearSearchResultsList();
+//            clearSearchResultsList();
             return;
         }
 
@@ -57,7 +59,7 @@ public class MainActivity extends Activity {
             public void success(ArtistsPager artistsPager, Response response) {
                 Pager<Artist> pager = artistsPager.artists;
                 if (pager.items.size() == 0) {
-                    clearSearchResultsList();
+//                    clearSearchResultsList();
                     return;
                 }
                 populateSearchResultsList(pager.items);
@@ -69,15 +71,6 @@ public class MainActivity extends Activity {
             }
         });
 
-    }
-
-    @UiThread
-    void clearSearchResultsList() {
-        if (adapter == null) {
-            adapter = new SearchResultsAdapter(getApplicationContext(), new ArrayList<SearchResult>());
-            listView.setAdapter(adapter);
-        }
-        adapter.clear();
     }
 
     @ItemClick(R.id.listView)
@@ -103,15 +96,8 @@ public class MainActivity extends Activity {
 
     }
 
-    @UiThread
     void makeNewAdapter(final List<Artist> sr) {
         // Make the new adapter if needed
-        if (adapter == null) {
-            adapter = new SearchResultsAdapter(getApplicationContext(), new ArrayList<SearchResult>());
-            listView.setAdapter(adapter);
-        }
-
-        adapter.clear();
 
         // Make an ArrayList from the non-null Artists
         for (Artist artist : sr) {

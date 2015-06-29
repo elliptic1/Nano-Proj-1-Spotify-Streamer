@@ -1,57 +1,59 @@
 package com.tbse.nano.nano_proj_1_spotify_streamer.adapters;
 
 import android.content.Context;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
-import android.widget.ImageView;
-import android.widget.TextView;
+import android.widget.BaseAdapter;
 
-import com.squareup.picasso.Picasso;
-import com.tbse.nano.nano_proj_1_spotify_streamer.R;
 import com.tbse.nano.nano_proj_1_spotify_streamer.models.SearchResult;
+import com.tbse.nano.nano_proj_1_spotify_streamer.views.SearchResultView;
+import com.tbse.nano.nano_proj_1_spotify_streamer.views.SearchResultView_;
 
-import java.util.ArrayList;
+import org.androidannotations.annotations.EBean;
+import org.androidannotations.annotations.RootContext;
 
-import kaaes.spotify.webapi.android.models.Image;
+import java.util.List;
 
-public class SearchResultsAdapter extends ArrayAdapter<SearchResult> {
+@EBean
+public class SearchResultsAdapter extends BaseAdapter {
+
+    List<SearchResult> searchResultList;
+
+    @RootContext Context context;
+
+    public SearchResultsAdapter() {
+        super();
+    }
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        SearchResult searchResult = getItem(position);
+
+        SearchResultView searchResultView;
 
         if (convertView == null) {
-            convertView = LayoutInflater.from(getContext()).inflate(R.layout.search_result_item, parent, false);
-        }
-
-        TextView textView = (TextView) convertView.findViewById(R.id.item_main_text_view);
-        TextView genreTV = (TextView) convertView.findViewById(R.id.item_main_genre);
-        ImageView imageView = (ImageView) convertView.findViewById(R.id.item_main_image);
-
-        textView.setText(searchResult.getArtistName());
-        genreTV.setText(searchResult.getGenre());
-
-        if (searchResult.getNumberOfImages() > 0) {
-            imageView.setVisibility(View.VISIBLE);
-            Image image = searchResult.getFirstImage();
-            if (image != null) {
-                Picasso.with(getContext())
-                        .load(image.url)
-                        .fit()
-                        .centerCrop()
-                        .into(imageView);
-            }
-
+            searchResultView = SearchResultView_.build(context);
         } else {
-            imageView.setVisibility(View.INVISIBLE);
+            searchResultView = (SearchResultView) convertView;
         }
 
-        return convertView;
+        searchResultView.bind(getItem(position));
+
+        return searchResultView;
     }
 
-    public SearchResultsAdapter(Context context, ArrayList<SearchResult> objects) {
-        super(context, 0, objects);
+    @Override
+    public int getCount() {
+        return searchResultList.size();
     }
+
+    @Override
+    public long getItemId(int position) {
+        return position;
+    }
+
+    @Override
+    public SearchResult getItem(int position) {
+        return searchResultList.get(position);
+    }
+
 }

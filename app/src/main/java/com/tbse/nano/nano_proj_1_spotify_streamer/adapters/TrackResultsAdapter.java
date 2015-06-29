@@ -1,56 +1,58 @@
 package com.tbse.nano.nano_proj_1_spotify_streamer.adapters;
 
 import android.content.Context;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
-import android.widget.ImageView;
-import android.widget.TextView;
+import android.widget.BaseAdapter;
 
-import com.squareup.picasso.Picasso;
-import com.tbse.nano.nano_proj_1_spotify_streamer.R;
 import com.tbse.nano.nano_proj_1_spotify_streamer.models.TrackResult;
+import com.tbse.nano.nano_proj_1_spotify_streamer.views.TrackResultView;
+import com.tbse.nano.nano_proj_1_spotify_streamer.views.TrackResultView_;
 
-import java.util.ArrayList;
+import org.androidannotations.annotations.EBean;
+import org.androidannotations.annotations.RootContext;
 
-import kaaes.spotify.webapi.android.models.Image;
+import java.util.List;
 
-public class TrackResultsAdapter extends ArrayAdapter<TrackResult> {
+@EBean
+public class TrackResultsAdapter extends BaseAdapter {
+
+    List<TrackResult> trackResultList;
+
+    @RootContext Context context;
+
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        TrackResult trackResult = getItem(position);
+
+        TrackResultView trackResultView;
 
         if (convertView == null) {
-            convertView = LayoutInflater.from(getContext()).inflate(R.layout.track_result_item, parent, false);
-        }
-
-        ImageView imageView = (ImageView) convertView.findViewById(R.id.item_album_image);
-        if (trackResult.getNumberOfImages() > 0) {
-            imageView.setVisibility(View.VISIBLE);
-            Image image = trackResult.getImage();
-            if (image != null) {
-                Picasso.with(getContext())
-                        .load(image.url)
-                        .fit()
-                        .centerCrop()
-                        .into(imageView);
-            }
-
+            trackResultView = TrackResultView_.build(context);
         } else {
-            imageView.setVisibility(View.INVISIBLE);
+            trackResultView = (TrackResultView) convertView;
         }
 
-        TextView textView = (TextView) convertView.findViewById(R.id.item_track_text_view);
-        textView.setText(trackResult.getTrack().name);
+        trackResultView.bind(getItem(position));
 
-        TextView albumTextView = (TextView) convertView.findViewById(R.id.item_track_album);
-        albumTextView.setText(trackResult.getTrack().album.name);
-
-        return convertView;
+        return trackResultView;
     }
 
-    public TrackResultsAdapter(Context context, ArrayList<TrackResult> objects) {
-        super(context, 0, objects);
+    @Override
+    public int getCount() {
+        return trackResultList.size();
+    }
+
+    @Override
+    public long getItemId(int position) {
+        return position;
+    }
+
+    @Override
+    public TrackResult getItem(int position) {
+        return trackResultList.get(position);
+    }
+
+    public TrackResultsAdapter() {
+        super();
     }
 }

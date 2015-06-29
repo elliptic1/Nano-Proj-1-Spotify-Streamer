@@ -30,9 +30,18 @@ public class TrackResult implements Parcelable {
         }
     };
 
+    public MyTrack getMyTrack() {
+        if (track == null) {
+            track = new MyTrack();
+        }
+        MyTrack myTrack = new MyTrack();
+        myTrack.setTrack(myTrack);
+        return myTrack;
+    }
+
     public Track getTrack() {
         if (track == null) {
-            track = new Track();
+            track = new MyTrack();
         }
         return track;
     }

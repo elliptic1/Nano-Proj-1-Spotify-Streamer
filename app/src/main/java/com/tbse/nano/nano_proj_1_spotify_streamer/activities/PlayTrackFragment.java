@@ -4,9 +4,6 @@ import android.app.Dialog;
 import android.app.DialogFragment;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -38,13 +35,6 @@ public class PlayTrackFragment extends DialogFragment {
         Log.d(TAG, "onCreateDialog");
 
         return d;
-    }
-
-    @Override
-    public View onCreateView (LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View v = inflater.inflate(R.layout.play_track, container, false);
-        Log.d(TAG, "onCreateView");
-        return v;
     }
 
     @AfterViews

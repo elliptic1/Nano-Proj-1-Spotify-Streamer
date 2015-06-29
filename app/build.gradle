@@ -1,4 +1,5 @@
 apply plugin: 'com.android.application'
+apply plugin: 'com.jakewharton.hugo'
 apply plugin: 'android-apt'
 
 buildscript {
@@ -26,7 +27,7 @@ android {
     compileSdkVersion 22
     buildToolsVersion "22.0.1"
 
-    def vc = 3
+    def vc = 4
 
     defaultConfig {
         applicationId "com.tbse.nano.nano_proj_1_spotify_streamer"
@@ -66,11 +67,3 @@ dependencies {
     compile(name: 'spotify-web-api-android-0.1.0', ext: 'aar')
 }
 
-//android.applicationVariants.all { variant ->
-//
-//    def aptOutputDir = project.file("${project.buildDir}/source/apt/")
-//    def aptOutput = new File(aptOutputDir, variant.dirName)
-//
-//    android.sourceSets[getSourceSetName(variant)].java.srcDirs+= aptOutput.getPath()
-//
-//}
