@@ -25,7 +25,7 @@ public class MyTrack extends Track {
     }
 
     public static List<MyTrack> listOfTrackToListOfMyTrack(List<Track> trackList) {
-        ArrayList<MyTrack> myTrackArrayList = new ArrayList<>();
+        ArrayList<MyTrack> myTrackArrayList = new ArrayList<MyTrack>();
         if (trackList.size() == 0) return myTrackArrayList;
         for (Track t : trackList) {
             MyTrack myTrack = new MyTrack();

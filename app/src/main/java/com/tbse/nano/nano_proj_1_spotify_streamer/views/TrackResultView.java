@@ -13,9 +13,11 @@ import com.tbse.nano.nano_proj_1_spotify_streamer.models.TrackResult;
 import org.androidannotations.annotations.EViewGroup;
 import org.androidannotations.annotations.ViewById;
 
+import hugo.weaving.DebugLog;
 import kaaes.spotify.webapi.android.models.Image;
 
 @EViewGroup(R.layout.track_result_item)
+@DebugLog
 public class TrackResultView extends LinearLayout {
 
     @ViewById(R.id.item_track_text_view)
@@ -32,8 +34,10 @@ public class TrackResultView extends LinearLayout {
     }
 
     public void bind(TrackResult trackResult) {
-        trackTextView.setText(trackResult.getTrack().name);
-        trackAlbumTextView.setText(trackResult.getAlbum().name);
+        trackTextView.setText(trackResult.getMyTrack().track.name);
+        if (trackResult.getAlbum() != null) {
+            trackAlbumTextView.setText(trackResult.getAlbum().name);
+        }
 
         if (trackResult.getNumberOfImages() > 0) {
             albumImageView.setVisibility(View.VISIBLE);

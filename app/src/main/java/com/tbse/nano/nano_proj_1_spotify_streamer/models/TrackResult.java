@@ -2,6 +2,9 @@ package com.tbse.nano.nano_proj_1_spotify_streamer.models;
 
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.util.Log;
+
+import com.tbse.nano.nano_proj_1_spotify_streamer.activities.MainActivity;
 
 import kaaes.spotify.webapi.android.models.AlbumSimple;
 import kaaes.spotify.webapi.android.models.Image;
@@ -32,15 +35,16 @@ public class TrackResult implements Parcelable {
 
     public MyTrack getMyTrack() {
         if (track == null) {
-            track = new MyTrack();
+            track = new Track();
         }
         MyTrack myTrack = new MyTrack();
-        myTrack.setTrack(myTrack);
+        myTrack.setTrack(track);
         return myTrack;
     }
 
     public Track getTrack() {
         if (track == null) {
+            Log.d(MainActivity.TAG, "getting new empty track");
             track = new MyTrack();
         }
         return track;
@@ -74,5 +78,10 @@ public class TrackResult implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
+    }
+
+    @Override
+    public String toString() {
+        return getMyTrack().toString();
     }
 }

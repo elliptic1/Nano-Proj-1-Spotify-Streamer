@@ -89,7 +89,7 @@ public class ListTracksActivity extends Activity {
     void clearTrackResultsList() {
         if (adapter != null) {
             Log.d(TAG, "clearing" );
-            adapter.clear();
+//            adapter.clear();
         }
     }
 
@@ -108,15 +108,15 @@ public class ListTracksActivity extends Activity {
 
     }
 
+    @AfterViews
+    void setAdapter() {
+        listView.setAdapter(adapter);
+    }
+
     @UiThread
     void updateListView(final List<MyTrack> trackList) {
-        // Make the new adapter if needed
-//        if (adapter == null) {
-//            adapter = new TrackResultsAdapter(getApplicationContext(), new ArrayList<TrackResult>());
-//            listView.setAdapter(adapter);
-//        }
-
         Log.d(TAG, "clearing list from updateListView");
+
         clearTrackResultsList();
 
         // Add the non-null Albums
@@ -125,6 +125,7 @@ public class ListTracksActivity extends Activity {
             if (track == null) continue;
             c++;
             if (c > 10) break;
+            Log.d(TAG, "adding " + track);
             adapter.add(new TrackResult(track));
         }
 

@@ -11,6 +11,7 @@ import com.tbse.nano.nano_proj_1_spotify_streamer.adapters.SearchResultsAdapter;
 import com.tbse.nano.nano_proj_1_spotify_streamer.models.SearchResult;
 
 import org.androidannotations.annotations.AfterTextChange;
+import org.androidannotations.annotations.AfterViews;
 import org.androidannotations.annotations.Background;
 import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EActivity;
@@ -18,11 +19,11 @@ import org.androidannotations.annotations.ItemClick;
 import org.androidannotations.annotations.UiThread;
 import org.androidannotations.annotations.ViewById;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
+import hugo.weaving.DebugLog;
 import kaaes.spotify.webapi.android.SpotifyApi;
 import kaaes.spotify.webapi.android.SpotifyService;
 import kaaes.spotify.webapi.android.models.Artist;
@@ -33,6 +34,7 @@ import retrofit.RetrofitError;
 import retrofit.client.Response;
 
 @EActivity(R.layout.activity_main)
+@DebugLog
 public class MainActivity extends Activity {
 
     public final static String TAG = "Nano1";
@@ -47,8 +49,10 @@ public class MainActivity extends Activity {
 
     @AfterTextChange(R.id.search_edittext)
     void afterSearchTextChanged() {
-        if (editText.toString().equals("")) {
-//            clearSearchResultsList();
+
+        Log.d(TAG, "text is " + editText.getText().toString());
+
+        if (editText.getText().toString().length() < 2) {
             return;
         }
 
@@ -59,7 +63,6 @@ public class MainActivity extends Activity {
             public void success(ArtistsPager artistsPager, Response response) {
                 Pager<Artist> pager = artistsPager.artists;
                 if (pager.items.size() == 0) {
-//                    clearSearchResultsList();
                     return;
                 }
                 populateSearchResultsList(pager.items);
@@ -96,10 +99,13 @@ public class MainActivity extends Activity {
 
     }
 
-    void makeNewAdapter(final List<Artist> sr) {
-        // Make the new adapter if needed
+    @AfterViews
+    void setAdapter() {
+        listView.setAdapter(adapter);
+    }
 
-        // Make an ArrayList from the non-null Artists
+    @UiThread
+    void makeNewAdapter(final List<Artist> sr) {
         for (Artist artist : sr) {
             if (artist == null) continue;
             adapter.add(new SearchResult(artist));
