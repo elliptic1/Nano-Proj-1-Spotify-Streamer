@@ -33,41 +33,39 @@ public class TrackResult implements Parcelable {
         }
     };
 
-    public MyTrack getMyTrack() {
-        if (track == null) {
-            track = new Track();
-        }
-        MyTrack myTrack = new MyTrack();
-        myTrack.setTrack(track);
-        return myTrack;
-    }
+//    public MyTrack getMyTrack() {
+//        if (track == null) {
+//            track = new Track();
+//        }
+//        return new MyTrack().setTrack(track);
+//    }
 
     public Track getTrack() {
         if (track == null) {
             Log.d(MainActivity.TAG, "getting new empty track");
-            track = new MyTrack();
+            track = new Track();
         }
         return track;
     }
 
     public AlbumSimple getAlbum() {
-        if (track != null) {
-            return track.album;
+        if (getTrack() != null) {
+            return getTrack().album;
         }
         return null;
     }
 
     public int getNumberOfImages() {
-        if (track == null || track.album == null || track.album.images == null
-                || track.album.images.size() == 0) {
+        if (getTrack() == null || getTrack().album == null || getTrack().album.images == null
+                || getTrack().album.images.size() == 0) {
             return 0;
         }
-        return track.album.images.size();
+        return getTrack().album.images.size();
     }
 
     public Image getImage() {
         if (getNumberOfImages() > 0)
-            return track.album.images.get(0);
+            return getTrack().album.images.get(0);
         return null;
     }
 
@@ -82,6 +80,9 @@ public class TrackResult implements Parcelable {
 
     @Override
     public String toString() {
-        return getMyTrack().toString();
+        if (track == null) {
+            return "track is null";
+        }
+        return getTrack().name;
     }
 }

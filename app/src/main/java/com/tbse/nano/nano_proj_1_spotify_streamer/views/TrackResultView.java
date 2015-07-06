@@ -34,7 +34,7 @@ public class TrackResultView extends LinearLayout {
     }
 
     public void bind(TrackResult trackResult) {
-        trackTextView.setText(trackResult.getMyTrack().track.name);
+        trackTextView.setText(trackResult.getTrack().name);
         if (trackResult.getAlbum() != null) {
             trackAlbumTextView.setText(trackResult.getAlbum().name);
         }

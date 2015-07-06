@@ -7,7 +7,6 @@ import android.widget.ListView;
 
 import com.tbse.nano.nano_proj_1_spotify_streamer.R;
 import com.tbse.nano.nano_proj_1_spotify_streamer.adapters.TrackResultsAdapter;
-import com.tbse.nano.nano_proj_1_spotify_streamer.models.MyTrack;
 import com.tbse.nano.nano_proj_1_spotify_streamer.models.TrackResult;
 
 import org.androidannotations.annotations.AfterViews;
@@ -74,7 +73,7 @@ public class ListTracksActivity extends Activity {
                     return;
                 }
 
-                populateTrackResultsList(MyTrack.listOfTrackToListOfMyTrack(pager.items));
+                populateTrackResultsList(pager.items);
             }
 
             @Override
@@ -94,13 +93,13 @@ public class ListTracksActivity extends Activity {
     }
 
     @Background
-    void populateTrackResultsList(final List<MyTrack> trackList) {
+    void populateTrackResultsList(final List<Track> trackList) {
 
         // sort by popularity
-        Collections.sort(trackList, new Comparator<MyTrack>() {
+        Collections.sort(trackList, new Comparator<Track>() {
             @Override
-            public int compare(MyTrack lhs, MyTrack rhs) {
-                return rhs.track.popularity - lhs.track.popularity;
+            public int compare(Track lhs, Track rhs) {
+                return rhs.popularity - lhs.popularity;
             }
         });
 
@@ -114,14 +113,14 @@ public class ListTracksActivity extends Activity {
     }
 
     @UiThread
-    void updateListView(final List<MyTrack> trackList) {
+    void updateListView(final List<Track> trackList) {
         Log.d(TAG, "clearing list from updateListView");
 
         clearTrackResultsList();
 
         // Add the non-null Albums
         int c = 0;
-        for (MyTrack track : trackList) {
+        for (Track track : trackList) {
             if (track == null) continue;
             c++;
             if (c > 10) break;
