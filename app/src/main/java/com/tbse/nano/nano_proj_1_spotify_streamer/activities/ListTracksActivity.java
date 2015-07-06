@@ -130,5 +130,4 @@ public class ListTracksActivity extends Activity {
 
     }
 
-
 }
