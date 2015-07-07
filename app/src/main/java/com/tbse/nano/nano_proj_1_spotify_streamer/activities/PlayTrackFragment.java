@@ -20,10 +20,14 @@ import kaaes.spotify.webapi.android.models.Image;
 @EFragment(R.layout.play_track)
 public class PlayTrackFragment extends DialogFragment {
 
-    @ViewById(R.id.play_album_image) ImageView albumImage;
-    @ViewById(R.id.play_album_title) TextView albumTitle;
-    @ViewById(R.id.play_track_title) TextView trackTitle;
-    @ViewById(R.id.play_artist_name) TextView artistName;
+    @ViewById(R.id.play_album_image)
+    ImageView albumImage;
+    @ViewById(R.id.play_album_title)
+    TextView albumTitle;
+    @ViewById(R.id.play_track_title)
+    TextView trackTitle;
+    @ViewById(R.id.play_artist_name)
+    TextView artistName;
 
     private static String TAG = MainActivity.TAG;
 
@@ -50,7 +54,11 @@ public class PlayTrackFragment extends DialogFragment {
 
         Log.d(TAG, "artist: " + tr.getTrack().artists.get(0).name);
         artistName.setText(tr.getTrack().artists.get(0).name);
-        trackTitle.setText(tr.getTrack().name);
+        int duration = Integer.valueOf("" + (tr.getTrack().duration_ms / 1000));
+        int minutes = duration / 60;
+        int leftover = duration % 60;
+        trackTitle.setText(tr.getTrack().name
+                + " (" + minutes + "m " + leftover + "s)");
         albumTitle.setText(tr.getAlbum().name);
 
         if (tr.getNumberOfImages() > 0) {
