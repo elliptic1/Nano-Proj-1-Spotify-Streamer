@@ -1,6 +1,8 @@
 package com.tbse.nano.nano_proj_1_spotify_streamer.activities;
 
 import android.app.DialogFragment;
+import android.media.AudioManager;
+import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -12,8 +14,11 @@ import com.tbse.nano.nano_proj_1_spotify_streamer.R;
 import com.tbse.nano.nano_proj_1_spotify_streamer.models.TrackResult;
 
 import org.androidannotations.annotations.AfterViews;
+import org.androidannotations.annotations.Click;
 import org.androidannotations.annotations.EFragment;
 import org.androidannotations.annotations.ViewById;
+
+import java.io.IOException;
 
 import kaaes.spotify.webapi.android.models.Image;
 
@@ -28,11 +33,46 @@ public class PlayTrackFragment extends DialogFragment {
     TextView trackTitle;
     @ViewById(R.id.play_artist_name)
     TextView artistName;
+    @ViewById(R.id.left_btn)
+    ImageView prevBtn;
+    @ViewById(R.id.middle_btn)
+    ImageView playPauseBtn;
+    @ViewById(R.id.right_btn)
+    ImageView nextBtn;
 
     private static String TAG = MainActivity.TAG;
 
     public PlayTrackFragment() {
         Log.d(TAG, "PTF constr");
+    }
+
+    @Click(R.id.left_btn)
+    void clickLeft() {
+        // TODO load prev track
+    }
+
+    @Click(R.id.middle_btn)
+    void clickMiddle() {
+        // TODO play / pause
+
+        TrackResult tr = getArguments().getParcelable("track");
+        String track_prev_url = tr.getTrack().preview_url;
+
+        MediaPlayer mediaPlayer = new MediaPlayer();
+        mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
+        try {
+            mediaPlayer.setDataSource(track_prev_url);
+            mediaPlayer.prepare(); // might take long! (for buffering, etc)
+        } catch (IOException e) {
+            return;
+        }
+        mediaPlayer.start();
+
+    }
+
+    @Click(R.id.right_btn)
+    void clickRight() {
+        // TODO load next track
     }
 
     @Override
