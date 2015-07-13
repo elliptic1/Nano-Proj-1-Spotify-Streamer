@@ -31,7 +31,7 @@ android {
 
     defaultConfig {
         applicationId "com.tbse.nano.nano_proj_1_spotify_streamer"
-        minSdkVersion 11
+        minSdkVersion 15
         targetSdkVersion 22
         versionCode vc
         versionName "1.0.0 build " + vc

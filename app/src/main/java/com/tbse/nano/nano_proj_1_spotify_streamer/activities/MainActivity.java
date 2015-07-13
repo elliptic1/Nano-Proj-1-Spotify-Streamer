@@ -9,6 +9,7 @@ import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.tbse.nano.nano_proj_1_spotify_streamer.R;
 import com.tbse.nano.nano_proj_1_spotify_streamer.adapters.SearchResultsAdapter;
@@ -76,6 +77,7 @@ public class MainActivity extends Activity {
                     public void success(ArtistsPager artistsPager, Response response) {
                         Pager<Artist> pager = artistsPager.artists;
                         if (pager.items.size() == 0) {
+                            showNoSearchResultsToast();
                             return;
                         }
                         populateSearchResultsList(pager.items);
@@ -84,6 +86,7 @@ public class MainActivity extends Activity {
                     @Override
                     public void failure(RetrofitError error) {
                         Log.e(TAG, "failure: " + error.getBody());
+                        showBadNetworkToast();
                     }
                 });
 
@@ -93,6 +96,16 @@ public class MainActivity extends Activity {
             return false;
         }
     };
+
+    @UiThread
+    void showNoSearchResultsToast() {
+        Toast.makeText(getApplicationContext(), "No Search Results!", Toast.LENGTH_SHORT).show();
+    }
+
+    @UiThread
+    void showBadNetworkToast() {
+        Toast.makeText(getApplicationContext(), "Bad Network!", Toast.LENGTH_SHORT).show();
+    }
 
     @ItemClick(R.id.listView)
     public void listArtistClicked(SearchResult searchResult) {

@@ -41,7 +41,9 @@ public class PlayTrackFragment extends DialogFragment {
     @ViewById(R.id.right_btn)
     ImageView nextBtn;
 
-    private enum PlayerState {PLAYING, PAUSED};
+    private enum PlayerState {PLAYING, PAUSED}
+
+    ;
     private PlayerState mPlayerState = PlayerState.PAUSED;
 
     private static String TAG = MainActivity.TAG;
@@ -62,10 +64,8 @@ public class PlayTrackFragment extends DialogFragment {
         MediaPlayer mediaPlayer = MainActivity.getMediaPlayer();
 
         if (mediaPlayer != null) {
-            if (mediaPlayer.isPlaying()) {
-                mediaPlayer.stop();
-            }
-            mediaPlayer.reset();
+            mediaPlayer.release();
+            mediaPlayer = null;
         }
 
         mediaPlayer = new MediaPlayer();
@@ -84,30 +84,41 @@ public class PlayTrackFragment extends DialogFragment {
                 return;
             }
 
-            startAudio(mediaPlayer, tr.getTrack().preview_url);
+            startAudio(tr.getTrack().preview_url);
 
         } else if (mPlayerState == PlayerState.PLAYING) {
             mPlayerState = PlayerState.PAUSED;
 
             playPauseBtn.setBackgroundResource(android.R.drawable.ic_media_play);
 
-            mediaPlayer.stop();
+            mediaPlayer.pause();
+            mediaPlayer.release();
+
+            MainActivity.setMediaPlayer(null);
 
         }
 
     }
 
     @Background
-    void startAudio(MediaPlayer mediaPlayer, String track_prev_url) {
-        if (mediaPlayer.isPlaying()) {
-            return;
-        }
+    void startAudio(String track_prev_url) {
+        MediaPlayer mediaPlayer = MainActivity.getMediaPlayer();
         try {
+            if (mediaPlayer.isPlaying()) {
+                return;
+            }
             mediaPlayer.setDataSource(track_prev_url);
             mediaPlayer.prepare(); // might take long! (for buffering, etc)
+            mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+                @Override
+                public void onCompletion(MediaPlayer mp) {
+                    playPauseBtn.callOnClick();
+                }
+            });
             mediaPlayer.start();
         } catch (IllegalStateException ignored) {
             mediaPlayer.reset();
+            mediaPlayer.release();
         } catch (IOException ignored) {
         }
     }
@@ -115,12 +126,15 @@ public class PlayTrackFragment extends DialogFragment {
     @Click(R.id.right_btn)
     void clickRight() {
         // TODO load next track
+
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setStyle(STYLE_NO_TITLE, getTheme());
+
+
     }
 
     @AfterViews
@@ -160,4 +174,22 @@ public class PlayTrackFragment extends DialogFragment {
 
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        MediaPlayer mediaPlayer = MainActivity.getMediaPlayer();
+        if (mediaPlayer == null) {
+            mPlayerState = PlayerState.PAUSED;
+            playPauseBtn.setBackgroundResource(android.R.drawable.ic_media_play);
+            return;
+        }
+
+        if (mediaPlayer.isPlaying()) {
+            mPlayerState = PlayerState.PLAYING;
+            playPauseBtn.setBackgroundResource(android.R.drawable.ic_media_pause);
+        } else {
+            mPlayerState = PlayerState.PAUSED;
+            playPauseBtn.setBackgroundResource(android.R.drawable.ic_media_play);
+        }
+    }
 }
