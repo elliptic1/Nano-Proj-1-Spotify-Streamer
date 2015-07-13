@@ -43,7 +43,6 @@ public class PlayTrackFragment extends DialogFragment {
 
     private enum PlayerState {PLAYING, PAUSED}
 
-    ;
     private PlayerState mPlayerState = PlayerState.PAUSED;
 
     private static String TAG = MainActivity.TAG;
@@ -52,12 +51,7 @@ public class PlayTrackFragment extends DialogFragment {
         Log.d(TAG, "PTF constr");
     }
 
-    @Click(R.id.left_btn)
-    void clickLeft() {
-        // TODO load prev track
-    }
-
-    @Click(R.id.middle_btn)
+   @Click(R.id.middle_btn)
     void clickMiddle() {
         // TODO play / pause
 
@@ -123,6 +117,11 @@ public class PlayTrackFragment extends DialogFragment {
         }
     }
 
+    @Click(R.id.left_btn)
+    void clickLeft() {
+        // TODO load prev track
+    }
+
     @Click(R.id.right_btn)
     void clickRight() {
         // TODO load next track
@@ -133,7 +132,6 @@ public class PlayTrackFragment extends DialogFragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setStyle(STYLE_NO_TITLE, getTheme());
-
 
     }
 
