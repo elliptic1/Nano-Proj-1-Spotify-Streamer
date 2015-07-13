@@ -2,15 +2,18 @@ package com.tbse.nano.nano_proj_1_spotify_streamer.activities;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.media.MediaPlayer;
 import android.util.Log;
+import android.view.KeyEvent;
+import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.TextView;
 
 import com.tbse.nano.nano_proj_1_spotify_streamer.R;
 import com.tbse.nano.nano_proj_1_spotify_streamer.adapters.SearchResultsAdapter;
 import com.tbse.nano.nano_proj_1_spotify_streamer.models.SearchResult;
 
-import org.androidannotations.annotations.AfterTextChange;
 import org.androidannotations.annotations.AfterViews;
 import org.androidannotations.annotations.Background;
 import org.androidannotations.annotations.Bean;
@@ -47,34 +50,49 @@ public class MainActivity extends Activity {
     @ViewById(R.id.listView)
     ListView listView;
 
-    @AfterTextChange(R.id.search_edittext)
-    void afterSearchTextChanged() {
-
-        Log.d(TAG, "text is " + editText.getText().toString());
-
-        if (editText.getText().toString().length() < 2) {
-            return;
-        }
-
-        SpotifyApi api = new SpotifyApi();
-        final SpotifyService spotify = api.getService();
-        spotify.searchArtists("*" + editText.getText().toString() + "*", new Callback<ArtistsPager>() {
-            @Override
-            public void success(ArtistsPager artistsPager, Response response) {
-                Pager<Artist> pager = artistsPager.artists;
-                if (pager.items.size() == 0) {
-                    return;
-                }
-                populateSearchResultsList(pager.items);
-            }
-
-            @Override
-            public void failure(RetrofitError error) {
-                Log.e(TAG, "failure: " + error.getBody());
-            }
-        });
-
+    public static MediaPlayer getMediaPlayer() {
+        return mediaPlayer;
     }
+
+    public static void setMediaPlayer(MediaPlayer mediaPlayer) {
+        MainActivity.mediaPlayer = mediaPlayer;
+    }
+
+    private static MediaPlayer mediaPlayer;
+
+    TextView.OnEditorActionListener onEditorActionListener = new TextView.OnEditorActionListener() {
+        @Override
+        public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+
+            if (actionId == EditorInfo.IME_ACTION_DONE) {
+
+                Log.d(TAG, "Enter was pressed!");
+                adapter.clear();
+
+                SpotifyApi api = new SpotifyApi();
+                final SpotifyService spotify = api.getService();
+                spotify.searchArtists("*" + editText.getText().toString() + "*", new Callback<ArtistsPager>() {
+                    @Override
+                    public void success(ArtistsPager artistsPager, Response response) {
+                        Pager<Artist> pager = artistsPager.artists;
+                        if (pager.items.size() == 0) {
+                            return;
+                        }
+                        populateSearchResultsList(pager.items);
+                    }
+
+                    @Override
+                    public void failure(RetrofitError error) {
+                        Log.e(TAG, "failure: " + error.getBody());
+                    }
+                });
+
+                return true;
+
+            }
+            return false;
+        }
+    };
 
     @ItemClick(R.id.listView)
     public void listArtistClicked(SearchResult searchResult) {
@@ -102,10 +120,12 @@ public class MainActivity extends Activity {
     @AfterViews
     void setAdapter() {
         listView.setAdapter(adapter);
+        editText.setOnEditorActionListener(onEditorActionListener);
     }
 
     @UiThread
     void makeNewAdapter(final List<Artist> sr) {
+        adapter.clear();
         for (Artist artist : sr) {
             if (artist == null) continue;
             adapter.add(new SearchResult(artist));
