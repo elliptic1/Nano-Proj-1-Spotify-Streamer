@@ -57,8 +57,8 @@ repositories {
 
 dependencies {
     compile 'com.android.support:appcompat-v7:22.2.0'
-    apt 'org.androidannotations:androidannotations:3.0'
-    compile 'org.androidannotations:androidannotations-api:3.0'
+    apt 'org.androidannotations:androidannotations:3.2'
+    compile 'org.androidannotations:androidannotations-api:3.2'
     compile 'com.android.support:support-v4:22.2.0'
     compile 'com.github.bumptech.glide:glide:3.6.0'
     compile 'com.squareup.retrofit:retrofit:1.9.0'

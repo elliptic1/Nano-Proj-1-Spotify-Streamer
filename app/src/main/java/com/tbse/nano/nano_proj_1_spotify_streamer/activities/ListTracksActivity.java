@@ -14,6 +14,7 @@ import org.androidannotations.annotations.Background;
 import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EActivity;
 import org.androidannotations.annotations.ItemClick;
+import org.androidannotations.annotations.Receiver;
 import org.androidannotations.annotations.UiThread;
 import org.androidannotations.annotations.ViewById;
 
@@ -50,6 +51,16 @@ public class ListTracksActivity extends Activity {
         playTrackFragment.setArguments(b);
         playTrackFragment.show(getFragmentManager(), "track");
 
+    }
+
+    @Receiver(actions = "action_prev_btn")
+    void prevBtn() {
+        Log.d(TAG, "prev");
+    }
+
+    @Receiver(actions = "action_next_btn")
+    void nextBtn() {
+        Log.d(TAG, "next");
     }
 
     @AfterViews

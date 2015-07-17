@@ -7,4 +7,7 @@
     <string name="top10tracks">Top 10 Tracks</string>
     <string name="title_searchresult_list">SearchResults</string>
     <string name="title_searchresult_detail">SearchResult Detail</string>
+
+    <string name="action_prev_btn">action_prev_btn</string>
+    <string name="action_next_btn">action_next_btn</string>
 </resources>
