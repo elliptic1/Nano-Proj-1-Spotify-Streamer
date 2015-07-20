@@ -1,9 +1,11 @@
 package com.tbse.nano.nano_proj_1_spotify_streamer.activities;
 
 import android.app.DialogFragment;
+import android.content.Intent;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.os.Bundle;
+import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
@@ -45,6 +47,8 @@ public class PlayTrackFragment extends DialogFragment {
 
     private PlayerState mPlayerState = PlayerState.PAUSED;
 
+    private static int showingTrackNum = 0;
+
     private static String TAG = MainActivity.TAG;
 
     public PlayTrackFragment() {
@@ -85,7 +89,6 @@ public class PlayTrackFragment extends DialogFragment {
 
             playPauseBtn.setBackgroundResource(android.R.drawable.ic_media_play);
 
-            mediaPlayer.pause();
             mediaPlayer.release();
 
             MainActivity.setMediaPlayer(null);
@@ -117,15 +120,32 @@ public class PlayTrackFragment extends DialogFragment {
         }
     }
 
+    @Background
+    void playTrackNum(int n) {
+        Log.d(TAG, "play track " + n);
+        if (n < 0) {
+            n = 0;
+        } else if (n > 9) {
+            n = 9;
+        }
+        Log.d(TAG, "now play track " + n);
+        Intent intent = new Intent("action_play_track");
+        intent.putExtra("trackNum", n);
+        LocalBroadcastManager.getInstance(getActivity()).sendBroadcast(intent);
+    }
+
     @Click(R.id.left_btn)
     void clickLeft() {
-        // TODO load prev track
+        showingTrackNum--;
+        Log.d(TAG, "click left " + showingTrackNum);
+        playTrackNum(showingTrackNum);
     }
 
     @Click(R.id.right_btn)
     void clickRight() {
-        // TODO load next track
-
+        showingTrackNum++;
+        Log.d(TAG, "click right " + showingTrackNum);
+        playTrackNum(showingTrackNum);
     }
 
     @Override

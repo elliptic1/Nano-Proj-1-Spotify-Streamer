@@ -35,6 +35,9 @@ import retrofit.client.Response;
 public class ListTracksActivity extends Activity {
 
     private final static String TAG = MainActivity.TAG;
+
+    private PlayTrackFragment playTrackFragment;
+
     @Bean
     TrackResultsAdapter adapter;
 
@@ -45,22 +48,26 @@ public class ListTracksActivity extends Activity {
     public void itemTrackClicked(TrackResult trackResult) {
         Log.d(TAG, "trackResult clicked: " + trackResult.toString());
 
-        PlayTrackFragment playTrackFragment = new PlayTrackFragment_();
+        playTrack(trackResult.getTrackIndex());
+    }
+
+    @Receiver(actions = "action_play_track", local = true)
+    void playTrack(@Receiver.Extra("trackNumber") int trackNumber) {
+
+        if (playTrackFragment != null) {
+            try {
+                playTrackFragment.dismiss();
+            } catch (Exception e) {
+                // ignore
+            }
+        }
+
+        playTrackFragment = new PlayTrackFragment_();
         Bundle b = new Bundle();
-        b.putParcelable("track", trackResult);
+        b.putParcelable("track", adapter.getItem(trackNumber));
+        b.putInt("trackNum", trackNumber);
         playTrackFragment.setArguments(b);
         playTrackFragment.show(getFragmentManager(), "track");
-
-    }
-
-    @Receiver(actions = "action_prev_btn")
-    void prevBtn() {
-        Log.d(TAG, "prev");
-    }
-
-    @Receiver(actions = "action_next_btn")
-    void nextBtn() {
-        Log.d(TAG, "next");
     }
 
     @AfterViews
@@ -133,10 +140,10 @@ public class ListTracksActivity extends Activity {
         int c = 0;
         for (Track track : trackList) {
             if (track == null) continue;
+            if (c >= 10) break;
+            Log.d(TAG, "adding " + track + " at pos " + c);
+            adapter.add(new TrackResult(track, c));
             c++;
-            if (c > 10) break;
-            Log.d(TAG, "adding " + track);
-            adapter.add(new TrackResult(track));
         }
 
     }

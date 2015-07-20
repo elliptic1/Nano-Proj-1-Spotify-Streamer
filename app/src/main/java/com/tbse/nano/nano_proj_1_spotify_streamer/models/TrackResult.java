@@ -14,8 +14,19 @@ public class TrackResult implements Parcelable {
 
     private Track track;
 
-    public TrackResult(Track track) {
+    public int getTrackIndex() {
+        return trackIndex;
+    }
+
+    public void setTrackIndex(int trackIndex) {
+        this.trackIndex = trackIndex;
+    }
+
+    private int trackIndex; // Should be ten
+
+    public TrackResult(Track track, int index) {
         this.track = track;
+        this.trackIndex = index;
     }
 
     protected TrackResult(Parcel in) {
