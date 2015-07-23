@@ -129,8 +129,9 @@ public class PlayTrackFragment extends DialogFragment {
             n = 9;
         }
         Log.d(TAG, "now play track " + n);
+        showingTrackNum = n;
         Intent intent = new Intent("action_play_track");
-        intent.putExtra("trackNum", n);
+        intent.putExtra("trackNumber", n);
         LocalBroadcastManager.getInstance(getActivity()).sendBroadcast(intent);
     }
 
@@ -165,6 +166,8 @@ public class PlayTrackFragment extends DialogFragment {
             Log.d(TAG, "tr is null");
             return;
         }
+
+        showingTrackNum = tr.getTrackIndex();
 
         Log.d(TAG, "artist: " + tr.getTrack().artists.get(0).name);
         artistName.setText(tr.getTrack().artists.get(0).name);

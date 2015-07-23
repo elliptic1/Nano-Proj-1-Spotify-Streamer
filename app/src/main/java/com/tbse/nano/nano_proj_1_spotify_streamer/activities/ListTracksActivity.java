@@ -44,6 +44,8 @@ public class ListTracksActivity extends Activity {
     @ViewById(R.id.listOfTracks)
     ListView listView;
 
+    private List<Track> searchResults;
+
     @ItemClick(R.id.listOfTracks)
     public void itemTrackClicked(TrackResult trackResult) {
         Log.d(TAG, "trackResult clicked: " + trackResult.toString());
@@ -53,7 +55,7 @@ public class ListTracksActivity extends Activity {
 
     @Receiver(actions = "action_play_track", local = true)
     void playTrack(@Receiver.Extra("trackNumber") int trackNumber) {
-
+        Log.d(TAG, "got play track intent: " + trackNumber);
         if (playTrackFragment != null) {
             try {
                 playTrackFragment.dismiss();
@@ -64,7 +66,8 @@ public class ListTracksActivity extends Activity {
 
         playTrackFragment = new PlayTrackFragment_();
         Bundle b = new Bundle();
-        b.putParcelable("track", adapter.getItem(trackNumber));
+        TrackResult trackResult = new TrackResult(searchResults.get(trackNumber), trackNumber);
+        b.putParcelable("track", trackResult);
         b.putInt("trackNum", trackNumber);
         playTrackFragment.setArguments(b);
         playTrackFragment.show(getFragmentManager(), "track");
@@ -120,6 +123,8 @@ public class ListTracksActivity extends Activity {
                 return rhs.popularity - lhs.popularity;
             }
         });
+
+        searchResults = trackList;
 
         updateListView(trackList);
 
