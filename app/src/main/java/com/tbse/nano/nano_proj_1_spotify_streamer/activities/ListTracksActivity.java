@@ -56,6 +56,9 @@ public class ListTracksActivity extends Activity {
     @Receiver(actions = "action_play_track", local = true)
     void playTrack(@Receiver.Extra("trackNumber") int trackNumber) {
         Log.d(TAG, "got play track intent: " + trackNumber);
+
+        if (trackNumber >= searchResults.size()) return;
+
         if (playTrackFragment != null) {
             try {
                 playTrackFragment.dismiss();
@@ -64,11 +67,12 @@ public class ListTracksActivity extends Activity {
             }
         }
 
-        playTrackFragment = new PlayTrackFragment_();
         Bundle b = new Bundle();
         TrackResult trackResult = new TrackResult(searchResults.get(trackNumber), trackNumber);
         b.putParcelable("track", trackResult);
         b.putInt("trackNum", trackNumber);
+        b.putInt("numberOfSearchResults", searchResults.size());
+        playTrackFragment = new PlayTrackFragment_();
         playTrackFragment.setArguments(b);
         playTrackFragment.show(getFragmentManager(), "track");
     }
@@ -145,7 +149,7 @@ public class ListTracksActivity extends Activity {
         int c = 0;
         for (Track track : trackList) {
             if (track == null) continue;
-            if (c >= 10) break;
+            if (c == 10) break;
             Log.d(TAG, "adding " + track + " at pos " + c);
             adapter.add(new TrackResult(track, c));
             c++;

@@ -36,11 +36,11 @@ public class PlayTrackFragment extends DialogFragment {
     TextView trackTitle;
     @ViewById(R.id.play_artist_name)
     TextView artistName;
-    @ViewById(R.id.left_btn)
+    @ViewById(R.id.prev_btn)
     ImageView prevBtn;
     @ViewById(R.id.middle_btn)
     ImageView playPauseBtn;
-    @ViewById(R.id.right_btn)
+    @ViewById(R.id.next_btn)
     ImageView nextBtn;
 
     private enum PlayerState {PLAYING, PAUSED}
@@ -48,6 +48,8 @@ public class PlayTrackFragment extends DialogFragment {
     private PlayerState mPlayerState = PlayerState.PAUSED;
 
     private static int showingTrackNum = 0;
+
+    private int numberOfSearchResults = 0;
 
     private static String TAG = MainActivity.TAG;
 
@@ -135,17 +137,22 @@ public class PlayTrackFragment extends DialogFragment {
         LocalBroadcastManager.getInstance(getActivity()).sendBroadcast(intent);
     }
 
-    @Click(R.id.left_btn)
+    @Click(R.id.prev_btn)
     void clickLeft() {
+        Log.d(TAG, "click left, showing " + showingTrackNum);
+        if (showingTrackNum == 0) return;
         showingTrackNum--;
-        Log.d(TAG, "click left " + showingTrackNum);
         playTrackNum(showingTrackNum);
     }
 
-    @Click(R.id.right_btn)
+    @Click(R.id.next_btn)
     void clickRight() {
+        int numberOfSearchResults = getArguments().getInt("numberOfSearchResults") > 10 ?
+                10 : getArguments().getInt("numberOfSearchResults");
+        Log.d(TAG, "click right, showing " + showingTrackNum
+                + " numResults-1 = " + (numberOfSearchResults-1));
+        if (showingTrackNum == numberOfSearchResults-1) return;
         showingTrackNum++;
-        Log.d(TAG, "click right " + showingTrackNum);
         playTrackNum(showingTrackNum);
     }
 

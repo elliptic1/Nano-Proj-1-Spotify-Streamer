@@ -58,7 +58,7 @@
                 android:layout_weight="1" >
             </View>
             <ImageButton
-                android:id="@+id/left_btn"
+                android:id="@+id/prev_btn"
                 android:layout_width="@dimen/dialog_fragment_btn_width"
                 android:layout_height="@dimen/dialog_fragment_btn_width"
                 android:gravity="center"
@@ -82,7 +82,7 @@
                 android:layout_weight="1" >
             </View>
             <ImageButton
-                android:id="@+id/right_btn"
+                android:id="@+id/next_btn"
                 android:layout_width="@dimen/dialog_fragment_btn_width"
                 android:layout_height="@dimen/dialog_fragment_btn_width"
                 android:gravity="center"
