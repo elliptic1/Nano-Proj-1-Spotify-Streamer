@@ -1,12 +1,14 @@
 package com.tbse.nano.nano_proj_1_spotify_streamer.activities;
 
-import android.app.Activity;
 import android.os.Bundle;
+import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 import android.widget.ListView;
 
 import com.tbse.nano.nano_proj_1_spotify_streamer.R;
 import com.tbse.nano.nano_proj_1_spotify_streamer.adapters.TrackResultsAdapter;
+import com.tbse.nano.nano_proj_1_spotify_streamer.fragments.PlayTrackFragment;
+import com.tbse.nano.nano_proj_1_spotify_streamer.fragments.PlayTrackFragment_;
 import com.tbse.nano.nano_proj_1_spotify_streamer.models.TrackResult;
 
 import org.androidannotations.annotations.AfterViews;
@@ -18,6 +20,7 @@ import org.androidannotations.annotations.Receiver;
 import org.androidannotations.annotations.UiThread;
 import org.androidannotations.annotations.ViewById;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -32,11 +35,16 @@ import retrofit.RetrofitError;
 import retrofit.client.Response;
 
 @EActivity(R.layout.track_list)
-public class ListTracksActivity extends Activity {
+public class ListTracksActivity extends FragmentActivity {
 
     private final static String TAG = MainActivity.TAG;
 
     private PlayTrackFragment playTrackFragment;
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+    }
 
     @Bean
     TrackResultsAdapter adapter;
@@ -44,7 +52,7 @@ public class ListTracksActivity extends Activity {
     @ViewById(R.id.listOfTracks)
     ListView listView;
 
-    private List<Track> searchResults;
+    private List<TrackResult> searchResults;
 
     @ItemClick(R.id.listOfTracks)
     public void itemTrackClicked(TrackResult trackResult) {
@@ -68,7 +76,7 @@ public class ListTracksActivity extends Activity {
         }
 
         Bundle b = new Bundle();
-        TrackResult trackResult = new TrackResult(searchResults.get(trackNumber), trackNumber);
+        TrackResult trackResult = new TrackResult(searchResults.get(trackNumber).getTrack(), trackNumber);
         b.putParcelable("track", trackResult);
         b.putInt("trackNum", trackNumber);
         b.putInt("numberOfSearchResults", searchResults.size());
@@ -98,7 +106,15 @@ public class ListTracksActivity extends Activity {
                     return;
                 }
 
-                populateTrackResultsList(pager.items);
+                ArrayList<TrackResult> trackResults = new ArrayList<TrackResult>();
+                int c = 0;
+                for (Track t : pager.items) {
+                    TrackResult tr = new TrackResult(t, c);
+                    c++;
+                    trackResults.add(tr);
+                }
+
+                populateTrackResultsList(trackResults);
             }
 
             @Override
@@ -118,13 +134,13 @@ public class ListTracksActivity extends Activity {
     }
 
     @Background
-    void populateTrackResultsList(final List<Track> trackList) {
+    void populateTrackResultsList(final List<TrackResult> trackList) {
 
         // sort by popularity
-        Collections.sort(trackList, new Comparator<Track>() {
+        Collections.sort(trackList, new Comparator<TrackResult>() {
             @Override
-            public int compare(Track lhs, Track rhs) {
-                return rhs.popularity - lhs.popularity;
+            public int compare(TrackResult lhs, TrackResult rhs) {
+                return rhs.getTrack().popularity - lhs.getTrack().popularity;
             }
         });
 
@@ -140,18 +156,18 @@ public class ListTracksActivity extends Activity {
     }
 
     @UiThread
-    void updateListView(final List<Track> trackList) {
+    void updateListView(final List<TrackResult> trackList) {
         Log.d(TAG, "clearing list from updateListView");
 
         clearTrackResultsList();
 
         // Add the non-null Albums
         int c = 0;
-        for (Track track : trackList) {
+        for (TrackResult track : trackList) {
             if (track == null) continue;
             if (c == 10) break;
-            Log.d(TAG, "adding " + track + " at pos " + c);
-            adapter.add(new TrackResult(track, c));
+            Log.d(TAG, "adding " + track.getTrack() + " at pos " + c);
+            adapter.add(new TrackResult(track.getTrack(), c));
             c++;
         }
 

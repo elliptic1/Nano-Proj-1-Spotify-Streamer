@@ -3,6 +3,7 @@ package com.tbse.nano.nano_proj_1_spotify_streamer.activities;
 import android.app.Activity;
 import android.content.Intent;
 import android.media.MediaPlayer;
+import android.os.Bundle;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.inputmethod.EditorInfo;
@@ -57,6 +58,14 @@ public class MainActivity extends Activity {
 
     public static void setMediaPlayer(MediaPlayer mediaPlayer) {
         MainActivity.mediaPlayer = mediaPlayer;
+    }
+
+    @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+
+        // TODO restore search results list
+
+        super.onRestoreInstanceState(savedInstanceState);
     }
 
     private static MediaPlayer mediaPlayer;

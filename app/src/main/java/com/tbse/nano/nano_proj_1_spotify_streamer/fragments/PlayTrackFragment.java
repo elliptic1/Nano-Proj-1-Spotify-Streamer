@@ -1,4 +1,4 @@
-package com.tbse.nano.nano_proj_1_spotify_streamer.activities;
+package com.tbse.nano.nano_proj_1_spotify_streamer.fragments;
 
 import android.app.DialogFragment;
 import android.content.Intent;
@@ -13,6 +13,7 @@ import android.widget.TextView;
 
 import com.squareup.picasso.Picasso;
 import com.tbse.nano.nano_proj_1_spotify_streamer.R;
+import com.tbse.nano.nano_proj_1_spotify_streamer.activities.MainActivity;
 import com.tbse.nano.nano_proj_1_spotify_streamer.models.TrackResult;
 
 import org.androidannotations.annotations.AfterViews;
