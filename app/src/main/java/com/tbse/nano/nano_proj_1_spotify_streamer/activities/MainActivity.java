@@ -14,6 +14,7 @@ import android.widget.Toast;
 
 import com.tbse.nano.nano_proj_1_spotify_streamer.R;
 import com.tbse.nano.nano_proj_1_spotify_streamer.adapters.SearchResultsAdapter;
+import com.tbse.nano.nano_proj_1_spotify_streamer.models.ParcelableArtist;
 import com.tbse.nano.nano_proj_1_spotify_streamer.models.SearchResult;
 
 import org.androidannotations.annotations.AfterViews;
@@ -24,6 +25,7 @@ import org.androidannotations.annotations.ItemClick;
 import org.androidannotations.annotations.UiThread;
 import org.androidannotations.annotations.ViewById;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -89,7 +91,14 @@ public class MainActivity extends Activity {
                             showNoSearchResultsToast();
                             return;
                         }
-                        populateSearchResultsList(pager.items);
+
+                        ArrayList<ParcelableArtist> parcelableArtists = new ArrayList<ParcelableArtist>();
+                        for (Artist artist : pager.items) {
+                            ParcelableArtist parcelableArtist = new ParcelableArtist(artist);
+                            parcelableArtists.add(parcelableArtist);
+                        }
+
+                        populateSearchResultsList(parcelableArtists);
                     }
 
                     @Override
@@ -125,13 +134,13 @@ public class MainActivity extends Activity {
     }
 
     @Background
-    void populateSearchResultsList(final List<Artist> sr) {
+    void populateSearchResultsList(final List<ParcelableArtist> sr) {
 
         // sort by popularity
-        Collections.sort(sr, new Comparator<Artist>() {
+        Collections.sort(sr, new Comparator<ParcelableArtist>() {
             @Override
-            public int compare(Artist lhs, Artist rhs) {
-                return rhs.popularity - lhs.popularity;
+            public int compare(ParcelableArtist lhs, ParcelableArtist rhs) {
+                return rhs.getArtist().popularity - lhs.getArtist().popularity;
             }
         });
 
@@ -146,11 +155,11 @@ public class MainActivity extends Activity {
     }
 
     @UiThread
-    void makeNewAdapter(final List<Artist> sr) {
+    void makeNewAdapter(final List<ParcelableArtist> sr) {
         adapter.clear();
-        for (Artist artist : sr) {
-            if (artist == null) continue;
-            adapter.add(new SearchResult(artist));
+        for (ParcelableArtist parcelableArtist : sr) {
+            if (parcelableArtist == null) continue;
+            adapter.add(new SearchResult(parcelableArtist.getArtist()));
         }
     }
 
