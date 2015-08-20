@@ -52,7 +52,6 @@ public class MainActivity extends Activity {
     ListView listView;
 
     private boolean hasBeenRestored;
-    private String searchText;
 
     public static MediaPlayer getMediaPlayer() {
         return mediaPlayer;
@@ -71,20 +70,19 @@ public class MainActivity extends Activity {
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         outState.putParcelableArrayList("parcelableArtists", parcelableArtists);
-        outState.putString("searchText", searchText);
+        if (searchView.getQuery() != null)
+            outState.putString("searchText", searchView.getQuery().toString());
         super.onSaveInstanceState(outState);
     }
 
     @Override
     protected void onRestoreInstanceState(Bundle savedInstanceState) {
-
-        // TODO restore search results list
+        super.onRestoreInstanceState(savedInstanceState);
 
         hasBeenRestored = true;
         parcelableArtists = savedInstanceState.getParcelableArrayList("parcelableArtists");
-        searchText = savedInstanceState.getString("searchText");
-        searchView.setQuery(searchText, false);
-        super.onRestoreInstanceState(savedInstanceState);
+        searchView.setQuery(savedInstanceState.getString("searchText"), false);
+        searchView.setIconified(false);
     }
 
     private static MediaPlayer mediaPlayer;
@@ -153,6 +151,11 @@ public class MainActivity extends Activity {
 
     @Background
     void populateSearchResultsList(final List<ParcelableArtist> sr) {
+
+        if (sr == null) {
+            Log.e(TAG, "called populate with null list");
+            return;
+        }
 
         // sort by popularity
         Collections.sort(sr, new Comparator<ParcelableArtist>() {
