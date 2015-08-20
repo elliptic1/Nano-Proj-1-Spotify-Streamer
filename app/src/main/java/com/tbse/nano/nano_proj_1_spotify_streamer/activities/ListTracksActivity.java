@@ -25,6 +25,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
+import hugo.weaving.DebugLog;
 import kaaes.spotify.webapi.android.SpotifyApi;
 import kaaes.spotify.webapi.android.SpotifyService;
 import kaaes.spotify.webapi.android.models.Pager;
@@ -35,15 +36,34 @@ import retrofit.RetrofitError;
 import retrofit.client.Response;
 
 @EActivity(R.layout.track_list)
+@DebugLog
 public class ListTracksActivity extends FragmentActivity {
 
-    private final static String TAG = MainActivity.TAG;
+    private final static String TAG = MainActivity.TAG + "-ListTrackAct";
 
     private PlayTrackFragment playTrackFragment;
 
+    private boolean hasBeenRestored = false;
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        hasBeenRestored = false;
+    }
+
     @Override
     protected void onSaveInstanceState(Bundle outState) {
+        Log.d(TAG, "on save instance");
+        outState.putParcelableArrayList("searchResults", searchResults);
         super.onSaveInstanceState(outState);
+    }
+
+    @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+        Log.d(TAG, "on restore instance");
+        searchResults = savedInstanceState.getParcelableArrayList("searchResults");
+        hasBeenRestored = true;
     }
 
     @Bean
@@ -52,7 +72,7 @@ public class ListTracksActivity extends FragmentActivity {
     @ViewById(R.id.listOfTracks)
     ListView listView;
 
-    private List<TrackResult> searchResults;
+    private ArrayList<TrackResult> searchResults;
 
     @ItemClick(R.id.listOfTracks)
     public void itemTrackClicked(TrackResult trackResult) {
@@ -85,12 +105,19 @@ public class ListTracksActivity extends FragmentActivity {
         playTrackFragment.show(getFragmentManager(), "track");
     }
 
-    @AfterViews
-    void beginSearch() {
-        SpotifyApi api = new SpotifyApi();
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (hasBeenRestored) {
+            Log.d(TAG, "hasbeenrestored");
+            populateTrackResultsList(searchResults);
+        } else {
+            Log.d(TAG, "has not beenrestored");
+            SpotifyApi api = new SpotifyApi();
 
-        String artist = getIntent().getStringExtra("artist");
-        searchSpotify(api, artist);
+            String artist = getIntent().getStringExtra("artist");
+            searchSpotify(api, artist);
+        }
     }
 
     @Background
@@ -134,7 +161,7 @@ public class ListTracksActivity extends FragmentActivity {
     }
 
     @Background
-    void populateTrackResultsList(final List<TrackResult> trackList) {
+    void populateTrackResultsList(final ArrayList<TrackResult> trackList) {
 
         // sort by popularity
         Collections.sort(trackList, new Comparator<TrackResult>() {

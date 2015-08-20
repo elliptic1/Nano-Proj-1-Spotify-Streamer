@@ -51,6 +51,9 @@ public class MainActivity extends Activity {
     @ViewById(R.id.listView)
     ListView listView;
 
+    private boolean hasBeenRestored;
+    private String searchText;
+
     public static MediaPlayer getMediaPlayer() {
         return mediaPlayer;
     }
@@ -60,14 +63,32 @@ public class MainActivity extends Activity {
     }
 
     @Override
+    protected void onStart() {
+        super.onStart();
+        hasBeenRestored = false;
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        outState.putParcelableArrayList("parcelableArtists", parcelableArtists);
+        outState.putString("searchText", searchText);
+        super.onSaveInstanceState(outState);
+    }
+
+    @Override
     protected void onRestoreInstanceState(Bundle savedInstanceState) {
 
         // TODO restore search results list
 
+        hasBeenRestored = true;
+        parcelableArtists = savedInstanceState.getParcelableArrayList("parcelableArtists");
+        searchText = savedInstanceState.getString("searchText");
+        searchView.setQuery(searchText, false);
         super.onRestoreInstanceState(savedInstanceState);
     }
 
     private static MediaPlayer mediaPlayer;
+    private ArrayList<ParcelableArtist> parcelableArtists;
 
     SearchView.OnQueryTextListener onQueryTextListener = new SearchView.OnQueryTextListener() {
         @Override
@@ -87,7 +108,7 @@ public class MainActivity extends Activity {
                         return;
                     }
 
-                    ArrayList<ParcelableArtist> parcelableArtists = new ArrayList<ParcelableArtist>();
+                    parcelableArtists = new ArrayList<ParcelableArtist>();
                     for (Artist artist : pager.items) {
                         ParcelableArtist parcelableArtist = new ParcelableArtist(artist);
                         parcelableArtists.add(parcelableArtist);
@@ -143,6 +164,14 @@ public class MainActivity extends Activity {
 
         makeNewAdapter(sr);
 
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (hasBeenRestored) {
+            populateSearchResultsList(parcelableArtists);
+        }
     }
 
     @AfterViews
