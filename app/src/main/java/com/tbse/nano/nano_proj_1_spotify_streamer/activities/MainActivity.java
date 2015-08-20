@@ -1,10 +1,14 @@
 package com.tbse.nano.nano_proj_1_spotify_streamer.activities;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
+import android.view.WindowManager;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.ListView;
 import android.widget.SearchView;
 import android.widget.Toast;
@@ -19,6 +23,7 @@ import org.androidannotations.annotations.Background;
 import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EActivity;
 import org.androidannotations.annotations.ItemClick;
+import org.androidannotations.annotations.SystemService;
 import org.androidannotations.annotations.UiThread;
 import org.androidannotations.annotations.ViewById;
 
@@ -42,6 +47,10 @@ import retrofit.client.Response;
 public class MainActivity extends Activity {
 
     public final static String TAG = "Nano1";
+
+    @SystemService
+    InputMethodManager inputMethodManager;
+
     @Bean
     SearchResultsAdapter adapter;
 
@@ -71,7 +80,7 @@ public class MainActivity extends Activity {
     protected void onSaveInstanceState(Bundle outState) {
         outState.putParcelableArrayList("parcelableArtists", parcelableArtists);
         if (searchView.getQuery() != null)
-            outState.putString("searchText", searchView.getQuery().toString());
+            outState.putString("searchText", searchText);
         super.onSaveInstanceState(outState);
     }
 
@@ -81,12 +90,24 @@ public class MainActivity extends Activity {
 
         hasBeenRestored = true;
         parcelableArtists = savedInstanceState.getParcelableArrayList("parcelableArtists");
+        Log.d(TAG, "restore bundle searchtext: " + savedInstanceState.getString("searchText"));
         searchView.setQuery(savedInstanceState.getString("searchText"), false);
         searchView.setIconified(false);
+        searchView.clearFocus();
     }
 
     private static MediaPlayer mediaPlayer;
     private ArrayList<ParcelableArtist> parcelableArtists;
+    private String searchText = "";
+
+    private void hideKeyboard() {
+        Log.d(TAG, "trying to hide keyboard");
+        View view = this.getCurrentFocus();
+        if (view != null) {
+            InputMethodManager inputManager = (InputMethodManager) this.getSystemService(Context.INPUT_METHOD_SERVICE);
+            inputManager.hideSoftInputFromWindow(view.getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
+        }
+    }
 
     SearchView.OnQueryTextListener onQueryTextListener = new SearchView.OnQueryTextListener() {
         @Override
@@ -95,9 +116,13 @@ public class MainActivity extends Activity {
             Log.d(TAG, "Enter was pressed!");
             adapter.clear();
 
+            searchText = query;
+
+            hideKeyboard();
+
             SpotifyApi api = new SpotifyApi();
             final SpotifyService spotify = api.getService();
-            spotify.searchArtists("*" + searchView.getQuery().toString() + "*", new Callback<ArtistsPager>() {
+            spotify.searchArtists("*" + query + "*", new Callback<ArtistsPager>() {
                 @Override
                 public void success(ArtistsPager artistsPager, Response response) {
                     Pager<Artist> pager = artistsPager.artists;
@@ -127,6 +152,7 @@ public class MainActivity extends Activity {
 
         @Override
         public boolean onQueryTextChange(String newText) {
+            searchText = newText;
             return false;
         }
     };
@@ -170,17 +196,28 @@ public class MainActivity extends Activity {
     }
 
     @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+    }
+
+    @Override
     protected void onResume() {
         super.onResume();
         if (hasBeenRestored) {
             populateSearchResultsList(parcelableArtists);
+            getWindow().setSoftInputMode(
+                    WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN
+            );
         }
+        hideKeyboard();
     }
 
     @AfterViews
     void setAdapter() {
         listView.setAdapter(adapter);
+        searchView.setQuery(searchText, false);
         searchView.setOnQueryTextListener(onQueryTextListener);
+        searchView.setIconified(false);
     }
 
     @UiThread
