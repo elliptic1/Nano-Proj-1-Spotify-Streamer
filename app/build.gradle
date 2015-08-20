@@ -27,14 +27,14 @@ android {
     compileSdkVersion 22
     buildToolsVersion "22.0.1"
 
-    def vc = 5
+    def vc = 6
 
     defaultConfig {
         applicationId "com.tbse.nano.nano_proj_1_spotify_streamer"
         minSdkVersion 15
         targetSdkVersion 22
         versionCode vc
-        versionName "1.0.0 build " + vc
+        versionName "1.0.1 build " + vc
     }
     buildTypes {
         release {
