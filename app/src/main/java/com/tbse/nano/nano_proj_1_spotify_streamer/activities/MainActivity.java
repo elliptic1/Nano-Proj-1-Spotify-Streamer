@@ -5,11 +5,8 @@ import android.content.Intent;
 import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.KeyEvent;
-import android.view.inputmethod.EditorInfo;
-import android.widget.EditText;
 import android.widget.ListView;
-import android.widget.TextView;
+import android.widget.SearchView;
 import android.widget.Toast;
 
 import com.tbse.nano.nano_proj_1_spotify_streamer.R;
@@ -48,8 +45,8 @@ public class MainActivity extends Activity {
     @Bean
     SearchResultsAdapter adapter;
 
-    @ViewById(R.id.search_edittext)
-    EditText editText;
+    @ViewById(R.id.search_view)
+    SearchView searchView;
 
     @ViewById(R.id.listView)
     ListView listView;
@@ -72,45 +69,45 @@ public class MainActivity extends Activity {
 
     private static MediaPlayer mediaPlayer;
 
-    TextView.OnEditorActionListener onEditorActionListener = new TextView.OnEditorActionListener() {
+    SearchView.OnQueryTextListener onQueryTextListener = new SearchView.OnQueryTextListener() {
         @Override
-        public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+        public boolean onQueryTextSubmit(String query) {
 
-            if (actionId == EditorInfo.IME_ACTION_DONE) {
+            Log.d(TAG, "Enter was pressed!");
+            adapter.clear();
 
-                Log.d(TAG, "Enter was pressed!");
-                adapter.clear();
-
-                SpotifyApi api = new SpotifyApi();
-                final SpotifyService spotify = api.getService();
-                spotify.searchArtists("*" + editText.getText().toString() + "*", new Callback<ArtistsPager>() {
-                    @Override
-                    public void success(ArtistsPager artistsPager, Response response) {
-                        Pager<Artist> pager = artistsPager.artists;
-                        if (pager.items.size() == 0) {
-                            showNoSearchResultsToast();
-                            return;
-                        }
-
-                        ArrayList<ParcelableArtist> parcelableArtists = new ArrayList<ParcelableArtist>();
-                        for (Artist artist : pager.items) {
-                            ParcelableArtist parcelableArtist = new ParcelableArtist(artist);
-                            parcelableArtists.add(parcelableArtist);
-                        }
-
-                        populateSearchResultsList(parcelableArtists);
+            SpotifyApi api = new SpotifyApi();
+            final SpotifyService spotify = api.getService();
+            spotify.searchArtists("*" + searchView.getQuery().toString() + "*", new Callback<ArtistsPager>() {
+                @Override
+                public void success(ArtistsPager artistsPager, Response response) {
+                    Pager<Artist> pager = artistsPager.artists;
+                    if (pager.items.size() == 0) {
+                        showNoSearchResultsToast();
+                        return;
                     }
 
-                    @Override
-                    public void failure(RetrofitError error) {
-                        Log.e(TAG, "failure: " + error.getBody());
-                        showBadNetworkToast();
+                    ArrayList<ParcelableArtist> parcelableArtists = new ArrayList<ParcelableArtist>();
+                    for (Artist artist : pager.items) {
+                        ParcelableArtist parcelableArtist = new ParcelableArtist(artist);
+                        parcelableArtists.add(parcelableArtist);
                     }
-                });
 
-                return true;
+                    populateSearchResultsList(parcelableArtists);
+                }
 
-            }
+                @Override
+                public void failure(RetrofitError error) {
+                    Log.e(TAG, "failure: " + error.getBody());
+                    showBadNetworkToast();
+                }
+            });
+
+            return true;
+        }
+
+        @Override
+        public boolean onQueryTextChange(String newText) {
             return false;
         }
     };
@@ -151,7 +148,7 @@ public class MainActivity extends Activity {
     @AfterViews
     void setAdapter() {
         listView.setAdapter(adapter);
-        editText.setOnEditorActionListener(onEditorActionListener);
+        searchView.setOnQueryTextListener(onQueryTextListener);
     }
 
     @UiThread
